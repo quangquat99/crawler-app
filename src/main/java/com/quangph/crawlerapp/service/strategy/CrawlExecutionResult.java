@@ -1,6 +1,6 @@
 package com.quangph.crawlerapp.service.strategy;
 
-import com.quangph.crawlerapp.dto.response.CompanyData;
+import com.fasterxml.jackson.databind.JsonNode;
 
 import java.util.List;
 
@@ -8,7 +8,7 @@ import java.util.List;
  * DTO noi bo dai dien cho ket qua cua mot strategy crawl.
  */
 public record CrawlExecutionResult(
-        List<CompanyData> items,
+        List<JsonNode> items,
         String message
 ) {
     /**

@@ -1,8 +1,8 @@
 package com.quangph.crawlerapp.service.strategy;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.quangph.crawlerapp.config.CrawlerProperties;
-import com.quangph.crawlerapp.dto.response.CompanyData;
 import com.quangph.crawlerapp.service.site.JcTransCompanyParser;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -101,9 +101,9 @@ public class ApiCrawlerStrategy implements CrawlerStrategy {
             if (looksLikeJson(rawBody)) {
                 objectMapper.readTree(rawBody);
                 if (jcTransCompanyParser.supports(url) || looksLikeJcTransCompanyApi(rawBody)) {
-                    List<CompanyData> items = jcTransCompanyParser.parseApiResponse(rawBody);
+                    List<JsonNode> items = jcTransCompanyParser.extractApiRecords(rawBody);
                     if (!items.isEmpty()) {
-                        return new CrawlExecutionResult(items, "Lay du lieu tu JSON API response");
+                        return new CrawlExecutionResult(items, "Lay du lieu raw tu JSON API response");
                     }
                 }
 
@@ -111,9 +111,12 @@ public class ApiCrawlerStrategy implements CrawlerStrategy {
             }
 
             if (jcTransCompanyParser.supports(url)) {
-                List<CompanyData> items = jcTransCompanyParser.parse(rawBody, url);
+                List<JsonNode> items = jcTransCompanyParser.parse(rawBody, url)
+                        .stream()
+                        .<JsonNode>map(item -> objectMapper.valueToTree(item))
+                        .toList();
                 if (!items.isEmpty()) {
-                    return new CrawlExecutionResult(items, "Lay du lieu bang API/HTML response");
+                    return new CrawlExecutionResult(items, "Lay du lieu raw tu API/HTML response");
                 }
             }
 

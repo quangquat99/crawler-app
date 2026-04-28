@@ -1,6 +1,7 @@
 package com.quangph.crawlerapp.service.strategy;
 
-import com.quangph.crawlerapp.dto.response.CompanyData;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.quangph.crawlerapp.service.site.JcTransCompanyParser;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
@@ -18,9 +19,11 @@ import java.util.List;
 @Order(2)
 public class HtmlCrawlerStrategy implements CrawlerStrategy {
 
+    private final ObjectMapper objectMapper;
     private final JcTransCompanyParser jcTransCompanyParser;
 
-    public HtmlCrawlerStrategy(JcTransCompanyParser jcTransCompanyParser) {
+    public HtmlCrawlerStrategy(ObjectMapper objectMapper, JcTransCompanyParser jcTransCompanyParser) {
+        this.objectMapper = objectMapper;
         this.jcTransCompanyParser = jcTransCompanyParser;
     }
 
@@ -60,7 +63,10 @@ public class HtmlCrawlerStrategy implements CrawlerStrategy {
 
         try {
             Document document = connection.get();
-            List<CompanyData> items = jcTransCompanyParser.parse(document.html(), url);
+            List<JsonNode> items = jcTransCompanyParser.parse(document.html(), url)
+                    .stream()
+                    .<JsonNode>map(item -> objectMapper.valueToTree(item))
+                    .toList();
             if (items.isEmpty()) {
                 return CrawlExecutionResult.empty("HTML thuan khong co item, co the trang dung JS render");
             }

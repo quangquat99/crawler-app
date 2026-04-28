@@ -34,7 +34,8 @@ public class DemoRunner implements ApplicationRunner {
             return;
         }
 
-        String demoUrl = crawlerProperties.getDemo().getUrl();
+//        String demoUrl = crawlerProperties.getDemo().getUrl();
+        String demoUrl = "https://www.jctrans.com/en/company/";
         log.info("Chay demo crawl voi URL: {}", demoUrl);
         crawlOrchestratorService.crawl(demoUrl);
     }

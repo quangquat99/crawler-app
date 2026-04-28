@@ -133,6 +133,27 @@ public class JcTransCompanyParser {
     }
 
     /**
+     * Tach raw records tu JSON API response de log va tra ve truoc khi map.
+     *
+     * @param rawBody raw JSON response
+     * @return danh sach JSON record
+     */
+    public List<JsonNode> extractApiRecords(String rawBody) {
+        try {
+            JsonNode records = objectMapper.readTree(rawBody).path("data").path("records");
+            if (!records.isArray() || records.isEmpty()) {
+                return List.of();
+            }
+
+            List<JsonNode> items = new ArrayList<>();
+            records.forEach(items::add);
+            return items;
+        } catch (Exception exception) {
+            return List.of();
+        }
+    }
+
+    /**
      * Lay text dau tien theo CSS selector tu mot node goc.
      *
      * @param root node goc

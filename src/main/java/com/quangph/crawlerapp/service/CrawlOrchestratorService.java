@@ -70,6 +70,6 @@ public class CrawlOrchestratorService {
      * @param result ket qua crawl chua danh sach item
      */
     private void logResult(CrawlExecutionResult result) {
-        result.items().forEach(item -> log.info("Crawl item: {}", item));
+        result.items().forEach(item -> log.info("Raw crawl item: {}", item.toPrettyString()));
     }
 }

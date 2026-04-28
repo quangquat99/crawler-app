@@ -1,5 +1,7 @@
 package com.quangph.crawlerapp.dto.response;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 import java.time.Instant;
 import java.util.List;
 
@@ -12,6 +14,6 @@ public record CrawlResponse(
         String message,
         int totalItems,
         Instant crawledAt,
-        List<CompanyData> items
+        List<JsonNode> items
 ) {
 }

@@ -1,5 +1,6 @@
 package com.quangph.crawlerapp.service.site;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.quangph.crawlerapp.dto.response.CompanyData;
 import org.junit.jupiter.api.Test;
@@ -78,5 +79,30 @@ class JcTransCompanyParserTest {
         assertThat(items.getFirst().memberType()).isEqualTo("JC Elite");
         assertThat(items.getFirst().detailUrl()).isEqualTo("https://www.jctrans.com/en/company/3159911");
         assertThat(items.getFirst().tags()).contains("FCL", "LCL", "Air Freight");
+    }
+
+    /**
+     * Kiem tra co the tach raw records de log/tra ve truoc khi map.
+     */
+    @Test
+    void shouldExtractRawRecordsFromApiResponse() {
+        String rawBody = """
+                {
+                  "data": {
+                    "records": [
+                      {
+                        "compName": "LESAM INTERNATIONAL GROUP S.r.l.",
+                        "countryName": "Italy"
+                      }
+                    ]
+                  }
+                }
+                """;
+
+        List<JsonNode> items = parser.extractApiRecords(rawBody);
+
+        assertThat(items).hasSize(1);
+        assertThat(items.getFirst().path("compName").asText()).isEqualTo("LESAM INTERNATIONAL GROUP S.r.l.");
+        assertThat(items.getFirst().path("countryName").asText()).isEqualTo("Italy");
     }
 }
