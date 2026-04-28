@@ -16,6 +16,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
+/**
+ * Strategy fallback cuoi cung cho cac trang can render JavaScript bang browser that.
+ */
 @Component
 @Order(3)
 public class PlaywrightCrawlerStrategy implements CrawlerStrategy {
@@ -30,16 +33,33 @@ public class PlaywrightCrawlerStrategy implements CrawlerStrategy {
         this.jcTransCompanyParser = jcTransCompanyParser;
     }
 
+    /**
+     * Tra ve ten strategy.
+     *
+     * @return ten strategy Playwright
+     */
     @Override
     public String getName() {
         return "PLAYWRIGHT";
     }
 
+    /**
+     * Tam thoi cho phep strategy Playwright duoc thu voi moi URL.
+     *
+     * @param url URL can crawl
+     * @return true
+     */
     @Override
     public boolean supports(String url) {
         return true;
     }
 
+    /**
+     * Dung Playwright mo trang, cho render xong roi parse DOM cuoi cung.
+     *
+     * @param url URL can crawl
+     * @return ket qua crawl bang Playwright
+     */
     @Override
     public CrawlExecutionResult crawl(String url) {
         try (Playwright playwright = Playwright.create()) {
@@ -67,6 +87,11 @@ public class PlaywrightCrawlerStrategy implements CrawlerStrategy {
         }
     }
 
+    /**
+     * Dump HTML sau render ra file de debug selector khi can.
+     *
+     * @param html HTML sau khi browser render
+     */
     private void dumpRenderedHtml(String html) {
         try {
             Path outputPath = Path.of("target", "playwright-rendered.html");

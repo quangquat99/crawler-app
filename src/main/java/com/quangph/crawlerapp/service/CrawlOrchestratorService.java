@@ -10,6 +10,10 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.util.List;
 
+/**
+ * Service dieu phoi thu tu cac chien luoc crawl theo rule:
+ * API -> HTML -> PLAYWRIGHT.
+ */
 @Service
 public class CrawlOrchestratorService {
 
@@ -21,6 +25,12 @@ public class CrawlOrchestratorService {
         this.crawlerStrategies = crawlerStrategies;
     }
 
+    /**
+     * Chay lan luot cac strategy cho toi khi lay duoc data.
+     *
+     * @param url URL can crawl
+     * @return ket qua crawl cuoi cung
+     */
     public CrawlResponse crawl(String url) {
         for (CrawlerStrategy crawlerStrategy : crawlerStrategies) {
             if (!crawlerStrategy.supports(url)) {
@@ -54,6 +64,11 @@ public class CrawlOrchestratorService {
         );
     }
 
+    /**
+     * Ghi log tung item crawl duoc de phuc vu debug tam thoi.
+     *
+     * @param result ket qua crawl chua danh sach item
+     */
     private void logResult(CrawlExecutionResult result) {
         result.items().forEach(item -> log.info("Crawl item: {}", item));
     }

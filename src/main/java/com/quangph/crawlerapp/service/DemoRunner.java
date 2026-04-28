@@ -7,6 +7,9 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
+/**
+ * Runner demo giup kick off mot request crawl mau luc startup neu duoc bat.
+ */
 @Component
 public class DemoRunner implements ApplicationRunner {
 
@@ -20,6 +23,11 @@ public class DemoRunner implements ApplicationRunner {
         this.crawlOrchestratorService = crawlOrchestratorService;
     }
 
+    /**
+     * Chay demo crawl sau khi Spring Boot da khoi dong xong.
+     *
+     * @param args tham so startup cua application
+     */
     @Override
     public void run(ApplicationArguments args) {
         if (!crawlerProperties.getDemo().isEnabled()) {

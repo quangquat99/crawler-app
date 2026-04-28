@@ -17,6 +17,9 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Strategy uu tien tim va goi API public truoc khi fallback sang HTML/Playwright.
+ */
 @Component
 @Order(1)
 public class ApiCrawlerStrategy implements CrawlerStrategy {
@@ -40,16 +43,33 @@ public class ApiCrawlerStrategy implements CrawlerStrategy {
         this.jcTransCompanyParser = jcTransCompanyParser;
     }
 
+    /**
+     * Tra ve ten strategy.
+     *
+     * @return ten strategy API
+     */
     @Override
     public String getName() {
         return "API";
     }
 
+    /**
+     * Tam thoi cho phep strategy API duoc thu voi moi URL.
+     *
+     * @param url URL can crawl
+     * @return true
+     */
     @Override
     public boolean supports(String url) {
         return true;
     }
 
+    /**
+     * Thu tim API mapping va goi API de lay data.
+     *
+     * @param url URL can crawl
+     * @return ket qua crawl bang API
+     */
     @Override
     public CrawlExecutionResult crawl(String url) {
         Optional<String> apiUrlOptional = resolveApiUrl(url);
@@ -78,10 +98,16 @@ public class ApiCrawlerStrategy implements CrawlerStrategy {
             log.info("API body preview: {}", limit(rawBody));
 
             // Dinh nghia chuan: neu la JSON thi parse bang Jackson.
-            // Demo Jctrans hien tai chua co public API mapping on dinh, nen block nay de san cho site khac.
             if (looksLikeJson(rawBody)) {
                 objectMapper.readTree(rawBody);
-                return CrawlExecutionResult.empty("Da tim thay API nhung chua khai bao JSON mapper cho site nay");
+                if (jcTransCompanyParser.supports(url) || looksLikeJcTransCompanyApi(rawBody)) {
+                    List<CompanyData> items = jcTransCompanyParser.parseApiResponse(rawBody);
+                    if (!items.isEmpty()) {
+                        return new CrawlExecutionResult(items, "Lay du lieu tu JSON API response");
+                    }
+                }
+
+                return CrawlExecutionResult.empty("API tra JSON nhung khong parse duoc thanh data");
             }
 
             if (jcTransCompanyParser.supports(url)) {
@@ -97,17 +123,79 @@ public class ApiCrawlerStrategy implements CrawlerStrategy {
         }
     }
 
+    /**
+     * Resolve API URL tu URL dau vao.
+     * Hien tai de hardcode cho viec mo rong sau nay, JcTrans chua map san API cong khai on dinh.
+     *
+     * @param url URL goc
+     * @return API URL neu tim thay
+     */
     private Optional<String> resolveApiUrl(String url) {
-        // Demo hardcode cho Jctrans: trang list cong ty hien khong co public API endpoint on dinh
-        // duoc map san trong project. Strategy nay van duoc chay dau tien de giu dung flow senior.
+        if (url == null || url.isBlank()) {
+            return Optional.empty();
+        }
+
+        if (looksLikeApiUrl(url)) {
+            return Optional.of(url);
+        }
+
+        String jcTransCompanyApiUrl = crawlerProperties.getSites().getJcTrans().getCompanyApiUrl();
+        if (jcTransCompanyParser.supports(url) && jcTransCompanyApiUrl != null && !jcTransCompanyApiUrl.isBlank()) {
+            return Optional.of(jcTransCompanyApiUrl.trim());
+        }
+
         return Optional.empty();
     }
 
+    /**
+     * Doan URL co dang API endpoint hay khong.
+     *
+     * @param url URL dau vao
+     * @return true neu URL co dau hieu la API
+     */
+    private boolean looksLikeApiUrl(String url) {
+        String normalized = url.toLowerCase();
+        return normalized.contains("/api")
+                || normalized.contains("cloudapi.")
+                || normalized.contains("sapi.")
+                || normalized.contains("base-api");
+    }
+
+    /**
+     * Phat hien body co schema giong JcTrans company search API hay khong.
+     *
+     * @param rawBody raw JSON response
+     * @return true neu body co data.records va compName
+     */
+    private boolean looksLikeJcTransCompanyApi(String rawBody) {
+        try {
+            return objectMapper.readTree(rawBody)
+                    .path("data")
+                    .path("records")
+                    .path(0)
+                    .hasNonNull("compName");
+        } catch (Exception exception) {
+            return false;
+        }
+    }
+
+    /**
+     * Kiem tra body co dang JSON hay khong.
+     *
+     * @param rawBody body thuan dang string
+     * @return true neu body co dang JSON object/array
+     */
     private boolean looksLikeJson(String rawBody) {
         String trimmed = rawBody == null ? "" : rawBody.trim();
         return trimmed.startsWith("{") || trimmed.startsWith("[");
     }
 
+    /**
+     * Cat ngan body de log preview, tranh log qua dai.
+     *
+     * @param rawBody body thuan dang string
+     * @return body da duoc cat ngan neu can
+     */
     private String limit(String rawBody) {
         if (rawBody == null) {
             return "";

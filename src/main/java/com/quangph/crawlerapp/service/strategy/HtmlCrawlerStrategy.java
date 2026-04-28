@@ -11,6 +11,9 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * Strategy crawl HTML thuong bang Jsoup khi khong tim thay API phu hop.
+ */
 @Component
 @Order(2)
 public class HtmlCrawlerStrategy implements CrawlerStrategy {
@@ -21,16 +24,33 @@ public class HtmlCrawlerStrategy implements CrawlerStrategy {
         this.jcTransCompanyParser = jcTransCompanyParser;
     }
 
+    /**
+     * Tra ve ten strategy.
+     *
+     * @return ten strategy HTML
+     */
     @Override
     public String getName() {
         return "HTML";
     }
 
+    /**
+     * Tam thoi cho phep strategy HTML duoc thu voi moi URL.
+     *
+     * @param url URL can crawl
+     * @return true
+     */
     @Override
     public boolean supports(String url) {
         return true;
     }
 
+    /**
+     * Crawl HTML thuan bang Jsoup va parse thanh data.
+     *
+     * @param url URL can crawl
+     * @return ket qua crawl bang HTML
+     */
     @Override
     public CrawlExecutionResult crawl(String url) {
         Connection connection = Jsoup.connect(url)

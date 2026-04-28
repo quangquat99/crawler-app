@@ -1,0 +1,131 @@
+Dưới đây là giải thích theo từng package và từng file trong project crawler-app (mình mô tả theo cấu trúc bạn gửi, và với các file chưa thấy nội dung thì mình giải thích theo vai trò chuẩn của tên file):
+
+1) Root project (mức gốc)
+
+
+pom.xml
+File cấu hình Maven: quản lý dependency, plugin build, Java version (21), Spring Boot, Jsoup, Validation, JPA…
+mvnw, mvnw.cmd, .mvn/
+Maven Wrapper: giúp chạy Maven đồng nhất mà không cần cài Maven global.
+
+
+README.md
+Tài liệu hướng dẫn chạy project, API, ví dụ request/response.
+
+
+HELP.md
+Tài liệu hỗ trợ nhanh do Spring Initializr tạo.
+.gitignore, .gitattributes
+Cấu hình Git: bỏ qua file build/log, chuẩn hóa line ending.
+
+
+.idea/
+Cấu hình IDE IntelliJ.
+target/
+Thư mục output build (class, jar…).
+
+2) src/main/java/com.quangph.crawlerapp
+2.1 File bootstrap
+
+
+CrawlerAppApplication
+Entry point của Spring Boot (main).
+Hiện tại đã tắt auto-config DataSource/JPA để app chạy được ngay khi chưa cấu hình DB đầy đủ.
+
+2.2 config package
+AppConfig
+Nơi khai báo bean cấu hình chung (RestTemplate/WebClient, ObjectMapper, executor, timeout… tùy project).
+CrawlerProperties
+Class bind cấu hình từ application.properties (vd timeout, user-agent, retry, giới hạn số item crawl…).
+Mục đích package config: tách phần “cấu hình hệ thống” khỏi business logic.
+
+2.3 controller package
+
+
+CrawlController
+Lớp REST API nhận request crawl từ client (HTTP), validate input, gọi service orchestration, trả response JSON.
+Mục đích package controller: tầng giao tiếp HTTP (web layer), không chứa logic crawl chi tiết.
+
+2.4 dto package
+dto.request
+
+
+CrawlRequest
+DTO đầu vào API, chứa url và có validation (NotBlank, URL).
+dto.response
+
+
+CompanyData
+DTO đại diện 1 công ty crawl được: tên, location, business scope, member type, detail URL, tags.
+
+
+CrawlResponse
+DTO trả về cho client, thường gồm danh sách item + metadata (message, tổng số, trạng thái…).
+Mục đích package dto: định nghĩa contract dữ liệu vào/ra API, giúp tách biệt với entity DB.
+
+2.5 entity package
+
+
+CrawlJobEntity
+Entity JPA cho bảng crawl_job, lưu thông tin 1 lần crawl (sourceUrl, strategyUsed, createdAt…).
+Mục đích: mô hình dữ liệu persistence (database layer).
+
+2.6 repository package
+CrawlJobRepository
+Spring Data JPA repository để CRUD/query CrawlJobEntity.
+Mục đích: truy cập DB theo chuẩn repository, tránh viết JDBC thủ công.
+
+2.7 service package
+service.site
+
+
+JcTransCompanyParser
+Parser chuyên cho trang JcTrans: nhận HTML, parse ra List<CompanyData> bằng Jsoup, xử lý selector/card/link/tag/member type.
+service.strategy
+
+
+CrawlOrchestratorService
+Điều phối luồng crawl tổng: chọn strategy/parser phù hợp theo URL, gọi fetch/parse, gom kết quả, tạo response.
+
+
+CrawlExecutionResult
+DTO nội bộ cho tầng service strategy: chứa danh sách item + message; có helper tạo kết quả rỗng.
+DemoRunner
+Runner để test nhanh luồng crawl khi app start hoặc chạy demo local (thường là CommandLineRunner/ApplicationRunner).
+Mục đích package service: business logic chính của ứng dụng crawl.
+
+2.8 exception package
+GlobalExceptionHandler
+Xử lý exception tập trung cho toàn app (validation lỗi, lỗi crawl, lỗi hệ thống) và chuẩn hóa format lỗi trả về API.
+Mục đích: đảm bảo API trả lỗi nhất quán, dễ debug và thân thiện client.
+
+3) src/main/resources
+
+
+application.properties
+Cấu hình runtime: port, logging, các tham số crawler, (sau này có thể thêm DB/JPA config).
+
+4) src/test
+Chứa test unit/integration cho controller/service/parser/repository (hiện bạn chưa liệt kê file cụ thể).
+
+Luồng sử dụng tổng thể (end-to-end)
+Client gọi API vào
+
+CrawlController với
+
+CrawlRequest.
+Controller gọi
+
+CrawlOrchestratorService.
+Orchestrator chọn parser/strategy phù hợp (ví dụ
+
+JcTransCompanyParser) để parse HTML thành
+
+CompanyData.
+Kết quả nội bộ đi qua
+
+CrawlExecutionResult, sau đó map ra
+
+CrawlResponse trả về client.
+Nếu bật persistence, có thể lưu log job qua CrawlJobEntity + CrawlJobRepository.
+Nếu có lỗi, GlobalExceptionHandler xử lý và trả lỗi chuẩn hóa.
