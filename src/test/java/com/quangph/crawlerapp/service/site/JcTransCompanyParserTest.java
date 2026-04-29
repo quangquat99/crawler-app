@@ -17,7 +17,7 @@ class JcTransCompanyParserTest {
     private final JcTransCompanyParser parser = new JcTransCompanyParser(new ObjectMapper());
 
     /**
-     * Kiem tra parser co doc duoc card company co ban tu HTML mau.
+     * Kiểm tra parser có đọc được card company cơ bản từ HTML mẫu.
      */
     @Test
     void shouldParseCompanyCardsFromHtml() {
@@ -42,7 +42,7 @@ class JcTransCompanyParserTest {
     }
 
     /**
-     * Kiem tra parser co doc duoc JSON response dang data.records.
+     * Kiểm tra parser có đọc được JSON response dạng data.records.
      */
     @Test
     void shouldParseCompaniesFromApiResponse() {
@@ -82,7 +82,7 @@ class JcTransCompanyParserTest {
     }
 
     /**
-     * Kiem tra co the tach raw records de log/tra ve truoc khi map.
+     * Kiểm tra có thể tách raw records để log/trả về trước khi map.
      */
     @Test
     void shouldExtractRawRecordsFromApiResponse() {

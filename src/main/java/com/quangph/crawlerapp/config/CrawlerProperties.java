@@ -3,7 +3,7 @@ package com.quangph.crawlerapp.config;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
- * Class bind toan bo cau hinh prefix `crawler` tu file properties/yaml.
+ * Lớp bind toàn bộ cấu hình prefix `crawler` từ file properties/yaml.
  */
 @ConfigurationProperties(prefix = "crawler")
 public class CrawlerProperties {
@@ -14,68 +14,68 @@ public class CrawlerProperties {
     private final Sites sites = new Sites();
 
     /**
-     * Tra ve nhom cau hinh demo startup.
+     * Trả về nhóm cấu hình demo startup.
      *
-     * @return cau hinh demo
+     * @return cấu hình demo
      */
     public Demo getDemo() {
         return demo;
     }
 
     /**
-     * Tra ve nhom cau hinh HTTP.
+     * Trả về nhóm cấu hình HTTP.
      *
-     * @return cau hinh HTTP
+     * @return cấu hình HTTP
      */
     public Http getHttp() {
         return http;
     }
 
     /**
-     * Tra ve nhom cau hinh Playwright.
+     * Trả về nhóm cấu hình Playwright.
      *
-     * @return cau hinh Playwright
+     * @return cấu hình Playwright
      */
     public Playwright getPlaywright() {
         return playwright;
     }
 
     /**
-     * Tra ve nhom cau hinh dac thu theo site.
+     * Trả về nhóm cấu hình đặc thù theo site.
      *
-     * @return cau hinh site
+     * @return cấu hình site
      */
     public Sites getSites() {
         return sites;
     }
 
     /**
-     * Cau hinh cho luong demo khi app vua khoi dong.
+     * Cấu hình cho luồng demo khi app vừa khởi động.
      */
     public static class Demo {
         private boolean enabled;
         private String url;
 
         /**
-         * Cho biet co bat demo startup hay khong.
+         * Cho biết có bật demo startup hay không.
          *
-         * @return true neu bat demo
+         * @return true nếu bật demo
          */
         public boolean isEnabled() {
             return enabled;
         }
 
         /**
-         * Gan trang thai bat/tat demo startup.
+         * Gán trạng thái bật/tắt demo startup.
          *
-         * @param enabled true neu muon bat demo
+         * @param enabled true nếu muốn bật demo
          */
         public void setEnabled(boolean enabled) {
             this.enabled = enabled;
         }
 
         /**
-         * Lay URL demo se duoc crawl khi startup.
+         * Lấy URL demo sẽ được crawl khi startup.
          *
          * @return URL demo
          */
@@ -84,7 +84,7 @@ public class CrawlerProperties {
         }
 
         /**
-         * Gan URL demo crawl.
+         * Gán URL demo crawl.
          *
          * @param url URL demo
          */
@@ -94,7 +94,7 @@ public class CrawlerProperties {
     }
 
     /**
-     * Cau hinh timeout va gioi han log cho HTTP client.
+     * Cấu hình timeout và giới hạn log cho HTTP client.
      */
     public static class Http {
         private int connectTimeoutMs = 10_000;
@@ -103,72 +103,72 @@ public class CrawlerProperties {
         private int maxBodyLogLength = 1_200;
 
         /**
-         * Lay timeout ket noi HTTP.
+         * Lấy timeout kết nối HTTP.
          *
-         * @return so mili giay timeout ket noi
+         * @return số mili giây timeout kết nối
          */
         public int getConnectTimeoutMs() {
             return connectTimeoutMs;
         }
 
         /**
-         * Gan timeout ket noi HTTP.
+         * Gán timeout kết nối HTTP.
          *
-         * @param connectTimeoutMs so mili giay timeout ket noi
+         * @param connectTimeoutMs số mili giây timeout kết nối
          */
         public void setConnectTimeoutMs(int connectTimeoutMs) {
             this.connectTimeoutMs = connectTimeoutMs;
         }
 
         /**
-         * Lay timeout doc response HTTP.
+         * Lấy timeout đọc response HTTP.
          *
-         * @return so mili giay timeout doc
+         * @return số mili giây timeout đọc
          */
         public int getReadTimeoutMs() {
             return readTimeoutMs;
         }
 
         /**
-         * Gan timeout doc response HTTP.
+         * Gán timeout đọc response HTTP.
          *
-         * @param readTimeoutMs so mili giay timeout doc
+         * @param readTimeoutMs số mili giây timeout đọc
          */
         public void setReadTimeoutMs(int readTimeoutMs) {
             this.readTimeoutMs = readTimeoutMs;
         }
 
         /**
-         * Lay timeout ghi request HTTP.
+         * Lấy timeout ghi request HTTP.
          *
-         * @return so mili giay timeout ghi
+         * @return số mili giây timeout ghi
          */
         public int getWriteTimeoutMs() {
             return writeTimeoutMs;
         }
 
         /**
-         * Gan timeout ghi request HTTP.
+         * Gán timeout ghi request HTTP.
          *
-         * @param writeTimeoutMs so mili giay timeout ghi
+         * @param writeTimeoutMs số mili giây timeout ghi
          */
         public void setWriteTimeoutMs(int writeTimeoutMs) {
             this.writeTimeoutMs = writeTimeoutMs;
         }
 
         /**
-         * Lay do dai toi da cua body duoc log preview.
+         * Lấy độ dài tối đa của body được log preview.
          *
-         * @return so ky tu toi da
+         * @return số ký tự tối đa
          */
         public int getMaxBodyLogLength() {
             return maxBodyLogLength;
         }
 
         /**
-         * Gan do dai toi da cua body duoc log preview.
+         * Gán độ dài tối đa của body được log preview.
          *
-         * @param maxBodyLogLength so ky tu toi da
+         * @param maxBodyLogLength số ký tự tối đa
          */
         public void setMaxBodyLogLength(int maxBodyLogLength) {
             this.maxBodyLogLength = maxBodyLogLength;
@@ -176,43 +176,43 @@ public class CrawlerProperties {
     }
 
     /**
-     * Cau hinh cho trinh duyet Playwright.
+     * Cấu hình cho trình duyệt Playwright.
      */
     public static class Playwright {
         private boolean headless = true;
         private int timeoutMs = 30_000;
 
         /**
-         * Cho biet Playwright co chay headless hay khong.
+         * Cho biết Playwright có chạy headless hay không.
          *
-         * @return true neu chay an giao dien
+         * @return true nếu chạy ẩn giao diện
          */
         public boolean isHeadless() {
             return headless;
         }
 
         /**
-         * Gan che do headless cho Playwright.
+         * Gán chế độ headless cho Playwright.
          *
-         * @param headless true neu muon chay an giao dien
+         * @param headless true nếu muốn chạy ẩn giao diện
          */
         public void setHeadless(boolean headless) {
             this.headless = headless;
         }
 
         /**
-         * Lay timeout mac dinh cho thao tac Playwright.
+         * Lấy timeout mặc định cho thao tác Playwright.
          *
-         * @return so mili giay timeout
+         * @return số mili giây timeout
          */
         public int getTimeoutMs() {
             return timeoutMs;
         }
 
         /**
-         * Gan timeout mac dinh cho thao tac Playwright.
+         * Gán timeout mặc định cho thao tác Playwright.
          *
-         * @param timeoutMs so mili giay timeout
+         * @param timeoutMs số mili giây timeout
          */
         public void setTimeoutMs(int timeoutMs) {
             this.timeoutMs = timeoutMs;
@@ -220,15 +220,15 @@ public class CrawlerProperties {
     }
 
     /**
-     * Cau hinh theo site de map page URL sang API URL khi can.
+     * Cấu hình theo site để map page URL sang API URL khi cần.
      */
     public static class Sites {
         private final JcTrans jcTrans = new JcTrans();
 
         /**
-         * Lay cau hinh cho site JCTrans.
+         * Lấy cấu hình cho site JCTrans.
          *
-         * @return cau hinh JCTrans
+         * @return cấu hình JCTrans
          */
         public JcTrans getJcTrans() {
             return jcTrans;
@@ -236,22 +236,22 @@ public class CrawlerProperties {
     }
 
     /**
-     * Cau hinh dac thu cho luong company cua JCTrans.
+     * Cấu hình đặc thù cho luồng company của JCTrans.
      */
     public static class JcTrans {
         private String companyApiUrl;
 
         /**
-         * Lay API URL company list neu muon map tu page URL sang API URL.
+         * Lấy API URL company list nếu muốn map từ page URL sang API URL.
          *
-         * @return API URL hoac null
+         * @return API URL hoặc null
          */
         public String getCompanyApiUrl() {
             return companyApiUrl;
         }
 
         /**
-         * Gan API URL company list.
+         * Gán API URL company list.
          *
          * @param companyApiUrl API URL company list
          */

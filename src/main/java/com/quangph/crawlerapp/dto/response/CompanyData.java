@@ -3,7 +3,7 @@ package com.quangph.crawlerapp.dto.response;
 import java.util.List;
 
 /**
- * DTO dai dien cho mot ban ghi company crawl duoc.
+ * DTO đại diện cho một bản ghi company crawl được.
  */
 public record CompanyData(
         String name,

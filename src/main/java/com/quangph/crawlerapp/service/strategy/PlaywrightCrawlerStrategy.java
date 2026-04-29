@@ -7,6 +7,7 @@ import com.microsoft.playwright.BrowserType;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Playwright;
 import com.quangph.crawlerapp.config.CrawlerProperties;
+import com.quangph.crawlerapp.dto.request.CrawlRequest;
 import com.quangph.crawlerapp.service.site.JcTransCompanyParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +19,7 @@ import java.nio.file.Path;
 import java.util.List;
 
 /**
- * Strategy fallback cuoi cung cho cac trang can render JavaScript bang browser that.
+ * Strategy fallback cuối cùng cho các trang cần render JavaScript bằng browser thật.
  */
 @Component
 @Order(3)
@@ -41,9 +42,9 @@ public class PlaywrightCrawlerStrategy implements CrawlerStrategy {
     }
 
     /**
-     * Tra ve ten strategy.
+     * Trả về tên strategy.
      *
-     * @return ten strategy Playwright
+     * @return tên strategy Playwright
      */
     @Override
     public String getName() {
@@ -51,9 +52,9 @@ public class PlaywrightCrawlerStrategy implements CrawlerStrategy {
     }
 
     /**
-     * Tam thoi cho phep strategy Playwright duoc thu voi moi URL.
+     * Tạm thời cho phép strategy Playwright được thử với mọi URL.
      *
-     * @param url URL can crawl
+     * @param url URL cần crawl
      * @return true
      */
     @Override
@@ -62,10 +63,10 @@ public class PlaywrightCrawlerStrategy implements CrawlerStrategy {
     }
 
     /**
-     * Dung Playwright mo trang, cho render xong roi parse DOM cuoi cung.
+     * Dùng Playwright mở trang, chờ render xong rồi parse DOM cuối cùng.
      *
-     * @param url URL can crawl
-     * @return ket qua crawl bang Playwright
+     * @param url URL cần crawl
+     * @return kết quả crawl bằng Playwright
      */
     @Override
     public CrawlExecutionResult crawl(String url) {
@@ -97,8 +98,13 @@ public class PlaywrightCrawlerStrategy implements CrawlerStrategy {
         }
     }
 
+    @Override
+    public CrawlExecutionResult crawl(CrawlRequest url) {
+        return null;
+    }
+
     /**
-     * Dump HTML sau render ra file de debug selector khi can.
+     * Dump HTML sau render ra file để debug selector khi cần.
      *
      * @param html HTML sau khi browser render
      */

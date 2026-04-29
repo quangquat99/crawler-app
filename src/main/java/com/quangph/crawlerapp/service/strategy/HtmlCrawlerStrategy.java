@@ -2,6 +2,7 @@ package com.quangph.crawlerapp.service.strategy;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.quangph.crawlerapp.dto.request.CrawlRequest;
 import com.quangph.crawlerapp.service.site.JcTransCompanyParser;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
@@ -13,7 +14,7 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * Strategy crawl HTML thuong bang Jsoup khi khong tim thay API phu hop.
+ * Strategy crawl HTML thường bằng Jsoup khi không tìm thấy API phù hợp.
  */
 @Component
 @Order(2)
@@ -28,9 +29,9 @@ public class HtmlCrawlerStrategy implements CrawlerStrategy {
     }
 
     /**
-     * Tra ve ten strategy.
+     * Trả về tên strategy.
      *
-     * @return ten strategy HTML
+     * @return tên strategy HTML
      */
     @Override
     public String getName() {
@@ -38,9 +39,9 @@ public class HtmlCrawlerStrategy implements CrawlerStrategy {
     }
 
     /**
-     * Tam thoi cho phep strategy HTML duoc thu voi moi URL.
+     * Tạm thời cho phép strategy HTML được thử với mọi URL.
      *
-     * @param url URL can crawl
+     * @param url URL cần crawl
      * @return true
      */
     @Override
@@ -49,10 +50,10 @@ public class HtmlCrawlerStrategy implements CrawlerStrategy {
     }
 
     /**
-     * Crawl HTML thuan bang Jsoup va parse thanh data.
+     * Crawl HTML thuần bằng Jsoup và parse thành data.
      *
-     * @param url URL can crawl
-     * @return ket qua crawl bang HTML
+     * @param url URL cần crawl
+     * @return kết quả crawl bằng HTML
      */
     @Override
     public CrawlExecutionResult crawl(String url) {
@@ -75,5 +76,10 @@ public class HtmlCrawlerStrategy implements CrawlerStrategy {
         } catch (IOException exception) {
             return CrawlExecutionResult.empty("Loi HTML crawl: " + exception.getMessage());
         }
+    }
+
+    @Override
+    public CrawlExecutionResult crawl(CrawlRequest url) {
+        return null;
     }
 }

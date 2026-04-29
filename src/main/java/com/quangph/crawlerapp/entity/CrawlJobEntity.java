@@ -10,7 +10,7 @@ import jakarta.persistence.Table;
 import java.time.Instant;
 
 /**
- * Entity mo ta job crawl de san cho viec luu database sau nay.
+ * Entity mô tả job crawl để sẵn cho việc lưu database sau này.
  */
 @Entity
 @Table(name = "crawl_job")
@@ -30,7 +30,7 @@ public class CrawlJobEntity {
     private Instant createdAt;
 
     /**
-     * Lay id cua job crawl.
+     * Lấy id của job crawl.
      *
      * @return id job
      */
@@ -39,54 +39,54 @@ public class CrawlJobEntity {
     }
 
     /**
-     * Lay URL nguon da duoc crawl.
+     * Lấy URL nguồn đã được crawl.
      *
-     * @return URL nguon
+     * @return URL nguồn
      */
     public String getSourceUrl() {
         return sourceUrl;
     }
 
     /**
-     * Gan URL nguon cho job crawl.
+     * Gán URL nguồn cho job crawl.
      *
-     * @param sourceUrl URL nguon
+     * @param sourceUrl URL nguồn
      */
     public void setSourceUrl(String sourceUrl) {
         this.sourceUrl = sourceUrl;
     }
 
     /**
-     * Lay ten chien luoc da duoc su dung.
+     * Lấy tên chiến lược đã được sử dụng.
      *
-     * @return ten strategy
+     * @return tên strategy
      */
     public String getStrategyUsed() {
         return strategyUsed;
     }
 
     /**
-     * Gan ten chien luoc da duoc su dung.
+     * Gán tên chiến lược đã được sử dụng.
      *
-     * @param strategyUsed ten strategy
+     * @param strategyUsed tên strategy
      */
     public void setStrategyUsed(String strategyUsed) {
         this.strategyUsed = strategyUsed;
     }
 
     /**
-     * Lay thoi diem tao job crawl.
+     * Lấy thời điểm tạo job crawl.
      *
-     * @return thoi diem tao
+     * @return thời điểm tạo
      */
     public Instant getCreatedAt() {
         return createdAt;
     }
 
     /**
-     * Gan thoi diem tao job crawl.
+     * Gán thời điểm tạo job crawl.
      *
-     * @param createdAt thoi diem tao
+     * @param createdAt thời điểm tạo
      */
     public void setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;

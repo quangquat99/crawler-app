@@ -10,16 +10,16 @@ import java.time.Instant;
 import java.util.Map;
 
 /**
- * Handler tap trung cho cac exception tra ve tu REST API.
+ * Handler tập trung cho các exception trả về từ REST API.
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
     /**
-     * Xu ly loi validation request va tra ve message ngan gon.
+     * Xử lý lỗi validation request và trả về message ngắn gọn.
      *
      * @param exception exception validation
-     * @return response 400 voi message loi
+     * @return response 400 với message lỗi
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> handleValidation(MethodArgumentNotValidException exception) {
@@ -38,10 +38,10 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Xu ly cac loi chua duoc bat cu the trong he thong.
+     * Xử lý các lỗi chưa được bắt cụ thể trong hệ thống.
      *
-     * @param exception exception tong quat
-     * @return response 500 voi message loi
+     * @param exception exception tổng quát
+     * @return response 500 với message lỗi
      */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGeneric(Exception exception) {

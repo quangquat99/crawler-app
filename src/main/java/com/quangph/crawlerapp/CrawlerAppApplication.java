@@ -6,9 +6,9 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 
 /**
- * Class bootstrap chinh cua ung dung crawler.
- * Tam thoi tat auto datasource/JPA de project co the chay ngay
- * trong giai doan moi log du lieu, chua luu vao database.
+ * Lớp bootstrap chính của ứng dụng crawler.
+ * Tạm thời tắt auto datasource/JPA để project có thể chạy ngay
+ * trong giai đoạn mới log dữ liệu, chưa lưu vào database.
  */
 @SpringBootApplication(
         exclude = {
@@ -19,9 +19,9 @@ import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfigurat
 public class CrawlerAppApplication {
 
     /**
-     * Diem vao chinh de khoi dong Spring Boot application.
+     * Điểm vào chính để khởi động Spring Boot application.
      *
-     * @param args tham so dong lenh khi chay ung dung
+     * @param args tham số dòng lệnh khi chạy ứng dụng
      */
     public static void main(String[] args) {
         SpringApplication.run(CrawlerAppApplication.class, args);

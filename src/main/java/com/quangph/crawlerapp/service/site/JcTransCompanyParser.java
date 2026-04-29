@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.StringJoiner;
 
 /**
- * Parser chuyen HTML cua trang JcTrans thanh danh sach CompanyData.
+ * Parser chuyển HTML của trang JcTrans thành danh sách CompanyData.
  */
 @Component
 public class JcTransCompanyParser {
@@ -26,28 +26,28 @@ public class JcTransCompanyParser {
     }
 
     /**
-     * Kiem tra parser nay co xu ly duoc URL hien tai hay khong.
+     * Kiểm tra parser này có xử lý được URL hiện tại hay không.
      *
-     * @param url URL can parser
-     * @return true neu URL thuoc domain/route JcTrans company
+     * @param url URL cần parser
+     * @return true nếu URL thuộc domain/route JcTrans company
      */
     public boolean supports(String url) {
         return url != null && url.startsWith("https://www.jctrans.com/en/company/");
     }
 
     /**
-     * Parse HTML thanh danh sach cong ty.
+     * Parse HTML thành danh sách công ty.
      *
-     * @param html HTML nguon da lay duoc
-     * @param baseUrl URL goc de resolve link tuong doi
-     * @return danh sach company crawl duoc
+     * @param html HTML nguồn đã lấy được
+     * @param baseUrl URL gốc để resolve link tương đối
+     * @return danh sách company crawl được
      */
     public List<CompanyData> parse(String html, String baseUrl) {
         Document document = Jsoup.parse(html, baseUrl);
         List<CompanyData> companies = new ArrayList<>();
 
-        // Trang Jctrans co 2 kieu card chinh:
-        // 1) HTML/SSR card tu server
+        // Trang JcTrans có 2 kiểu card chính:
+        // 1) HTML/SSR card từ server
         // 2) Card sau khi JS render trong swiper / list
         Elements cards = document.select(
                 ".company-item, .company-info-card, .company-content, .person-swiper-slide"
@@ -83,10 +83,10 @@ public class JcTransCompanyParser {
     }
 
     /**
-     * Parse JSON API response dang data.records thanh danh sach company.
+     * Parse JSON API response dạng data.records thành danh sách company.
      *
      * @param rawBody raw JSON response
-     * @return danh sach company crawl duoc
+     * @return danh sách company crawl được
      */
     public List<CompanyData> parseApiResponse(String rawBody) {
         try {
@@ -133,10 +133,10 @@ public class JcTransCompanyParser {
     }
 
     /**
-     * Tach raw records tu JSON API response de log va tra ve truoc khi map.
+     * Tách raw records từ JSON API response để log và trả về trước khi map.
      *
      * @param rawBody raw JSON response
-     * @return danh sach JSON record
+     * @return danh sách JSON record
      */
     public List<JsonNode> extractApiRecords(String rawBody) {
         try {
@@ -154,11 +154,11 @@ public class JcTransCompanyParser {
     }
 
     /**
-     * Lay text dau tien theo CSS selector tu mot node goc.
+     * Lấy text đầu tiên theo CSS selector từ một node gốc.
      *
-     * @param root node goc
-     * @param selector CSS selector can tim
-     * @return text cua node tim duoc, hoac null
+     * @param root node gốc
+     * @param selector CSS selector cần tìm
+     * @return text của node tìm được, hoặc null
      */
     private String text(Element root, String selector) {
         Element element = root.selectFirst(selector);
@@ -166,12 +166,12 @@ public class JcTransCompanyParser {
     }
 
     /**
-     * Lay gia tri attribute cua phan tu dau tien theo selector.
+     * Lấy giá trị attribute của phần tử đầu tiên theo selector.
      *
-     * @param root node goc
-     * @param selector CSS selector can tim
-     * @param attributeName ten attribute can lay
-     * @return gia tri attribute, hoac null
+     * @param root node gốc
+     * @param selector CSS selector cần tìm
+     * @param attributeName tên attribute cần lấy
+     * @return giá trị attribute, hoặc null
      */
     private String attr(Element root, String selector, String attributeName) {
         Element element = root.selectFirst(selector);
@@ -179,10 +179,10 @@ public class JcTransCompanyParser {
     }
 
     /**
-     * Resolve link chi tiet company tu card hien tai.
+     * Resolve link chi tiết company từ card hiện tại.
      *
      * @param card node card company
-     * @return URL chi tiet company
+     * @return URL chi tiết company
      */
     private String resolveDetailUrl(Element card) {
         if ("a".equalsIgnoreCase(card.tagName()) && card.hasAttr("href")) {
@@ -192,10 +192,10 @@ public class JcTransCompanyParser {
     }
 
     /**
-     * Suy ra member type tu text hoac CSS class trong card.
+     * Suy ra member type từ text hoặc CSS class trong card.
      *
      * @param card node card company
-     * @return member type, hoac null neu khong tim thay
+     * @return member type, hoặc null nếu không tìm thấy
      */
     private String resolveMemberType(Element card) {
         String rawMemberType = text(card, ".member-type, .company-member");
@@ -217,10 +217,10 @@ public class JcTransCompanyParser {
     }
 
     /**
-     * Resolve member type tu JSON record.
+     * Resolve member type từ JSON record.
      *
      * @param record JSON company record
-     * @return member type, hoac null
+     * @return member type, hoặc null
      */
     private String resolveMemberType(JsonNode record) {
         JsonNode vipList = record.path("vipListVoList");
@@ -234,10 +234,10 @@ public class JcTransCompanyParser {
     }
 
     /**
-     * Resolve detail URL tu compEncryptionId hoac uid.
+     * Resolve detail URL từ compEncryptionId hoặc uid.
      *
      * @param record JSON company record
-     * @return URL chi tiet company
+     * @return URL chi tiết company
      */
     private String resolveDetailUrl(JsonNode record) {
         String encryptedId = text(record, "compEncryptionId");
@@ -254,10 +254,10 @@ public class JcTransCompanyParser {
     }
 
     /**
-     * Gom tag tu cac field list quen thuoc trong JSON.
+     * Gom tag từ các field list quen thuộc trong JSON.
      *
      * @param record JSON company record
-     * @return danh sach tag duy nhat
+     * @return danh sách tag duy nhất
      */
     private List<String> collectTags(JsonNode record) {
         List<String> tags = new ArrayList<>();
@@ -277,10 +277,10 @@ public class JcTransCompanyParser {
     }
 
     /**
-     * Tra ve gia tri dau tien khong rong trong danh sach candidate.
+     * Trả về giá trị đầu tiên không rỗng trong danh sách candidate.
      *
-     * @param candidates danh sach gia tri can kiem tra
-     * @return gia tri dau tien hop le, hoac null
+     * @param candidates danh sách giá trị cần kiểm tra
+     * @return giá trị đầu tiên hợp lệ, hoặc null
      */
     private String firstNonBlank(String... candidates) {
         for (String candidate : candidates) {
@@ -292,11 +292,11 @@ public class JcTransCompanyParser {
     }
 
     /**
-     * Lay text tu field JSON va doi blank thanh null.
+     * Lấy text từ field JSON và đổi blank thành null.
      *
-     * @param node node can doc
-     * @param fieldName ten field
-     * @return text hoac null
+     * @param node node cần đọc
+     * @param fieldName tên field
+     * @return text hoặc null
      */
     private String text(JsonNode node, String fieldName) {
         JsonNode child = node.path(fieldName);
@@ -308,11 +308,11 @@ public class JcTransCompanyParser {
     }
 
     /**
-     * Noi cac gia tri khong rong bang separator.
+     * Nối các giá trị không rỗng bằng separator.
      *
-     * @param separator chuoi ngan cach
-     * @param values cac gia tri can noi
-     * @return chuoi da noi, hoac null neu rong
+     * @param separator chuỗi ngăn cách
+     * @param values các giá trị cần nối
+     * @return chuỗi đã nối, hoặc null nếu rỗng
      */
     private String joinNonBlank(String separator, String... values) {
         StringJoiner joiner = new StringJoiner(separator);
@@ -326,10 +326,10 @@ public class JcTransCompanyParser {
     }
 
     /**
-     * Chuyen array JSON thanh chuoi phan tach bang dau phay.
+     * Chuyển array JSON thành chuỗi phân tách bằng dấu phẩy.
      *
      * @param array node array
-     * @return chuoi da noi, hoac null
+     * @return chuỗi đã nối, hoặc null
      */
     private String joinArray(JsonNode array) {
         List<String> values = new ArrayList<>();
@@ -338,9 +338,9 @@ public class JcTransCompanyParser {
     }
 
     /**
-     * Append cac gia tri text khong rong tu JSON array vao list dich.
+     * Thêm các giá trị text không rỗng từ JSON array vào list đích.
      *
-     * @param target list dich
+     * @param target list đích
      * @param array node array
      */
     private void appendArrayValues(List<String> target, JsonNode array) {
@@ -357,10 +357,10 @@ public class JcTransCompanyParser {
     }
 
     /**
-     * Doi blank string thanh null.
+     * Đổi blank string thành null.
      *
-     * @param value gia tri dau vao
-     * @return null neu blank, nguoc lai tra ve chuoi trim
+     * @param value giá trị đầu vào
+     * @return null nếu blank, ngược lại trả về chuỗi trim
      */
     private String blankToNull(String value) {
         return value == null || value.isBlank() ? null : value.trim();

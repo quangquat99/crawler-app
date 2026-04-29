@@ -1,6 +1,7 @@
 package com.quangph.crawlerapp.service;
 
 import com.quangph.crawlerapp.config.CrawlerProperties;
+import com.quangph.crawlerapp.dto.request.CrawlRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
@@ -8,7 +9,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
 /**
- * Runner demo giup kick off mot request crawl mau luc startup neu duoc bat.
+ * Runner demo giúp khởi tạo một request crawl mẫu lúc startup nếu được bật.
  */
 @Component
 public class DemoRunner implements ApplicationRunner {
@@ -24,9 +25,9 @@ public class DemoRunner implements ApplicationRunner {
     }
 
     /**
-     * Chay demo crawl sau khi Spring Boot da khoi dong xong.
+     * Chạy demo crawl sau khi Spring Boot đã khởi động xong.
      *
-     * @param args tham so startup cua application
+     * @param args tham số startup của application
      */
     @Override
     public void run(ApplicationArguments args) {
@@ -37,6 +38,6 @@ public class DemoRunner implements ApplicationRunner {
 //        String demoUrl = crawlerProperties.getDemo().getUrl();
         String demoUrl = "https://www.jctrans.com/en/company/";
         log.info("Chay demo crawl voi URL: {}", demoUrl);
-        crawlOrchestratorService.crawl(demoUrl);
+//        crawlOrchestratorService.crawl(new CrawlRequest(demoUrl, 1, 10, 1));
     }
 }

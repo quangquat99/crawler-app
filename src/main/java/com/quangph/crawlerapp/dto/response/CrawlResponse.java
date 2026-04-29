@@ -6,7 +6,7 @@ import java.time.Instant;
 import java.util.List;
 
 /**
- * DTO dau ra cho ket qua crawl URL.
+ * DTO đầu ra cho kết quả crawl URL.
  */
 public record CrawlResponse(
         String requestedUrl,

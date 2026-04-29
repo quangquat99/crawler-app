@@ -1,30 +1,35 @@
 package com.quangph.crawlerapp.service.strategy;
 
+import com.quangph.crawlerapp.dto.request.CrawlRequest;
+
 /**
- * Contract chung cho moi chien luoc crawl.
+ * Contract chung cho mọi chiến lược crawl.
  */
 public interface CrawlerStrategy {
 
     /**
-     * Tra ve ten chien luoc de log va response.
+     * Trả về tên chiến lược để log và response.
      *
-     * @return ten strategy
+     * @return tên strategy
      */
     String getName();
 
     /**
-     * Kiem tra strategy co phu hop de xu ly URL hay khong.
+     * Kiểm tra strategy có phù hợp để xử lý URL hay không.
      *
-     * @param url URL can crawl
-     * @return true neu strategy ho tro
+     * @param url URL cần crawl
+     * @return true nếu strategy hỗ trợ
      */
     boolean supports(String url);
 
     /**
-     * Thuc hien crawl URL va tra ve ket qua.
+     * Thực hiện crawl URL và trả về kết quả.
      *
-     * @param url URL can crawl
-     * @return ket qua crawl cua strategy
+     * @param url URL cần crawl
+     * @return kết quả crawl của strategy
      */
     CrawlExecutionResult crawl(String url);
+
+
+    CrawlExecutionResult crawl(CrawlRequest url);
 }

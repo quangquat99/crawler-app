@@ -9,17 +9,17 @@ import org.springframework.context.annotation.Configuration;
 import java.time.Duration;
 
 /**
- * Class chua cac bean cau hinh dung chung cho he thong crawl.
+ * Lớp chứa các bean cấu hình dùng chung cho hệ thống crawl.
  */
 @Configuration
 @EnableConfigurationProperties(CrawlerProperties.class)
 public class AppConfig {
 
     /**
-     * Khoi tao OkHttpClient dung chung cho cac luong crawl API.
+     * Khởi tạo OkHttpClient dùng chung cho các luồng crawl API.
      *
-     * @param crawlerProperties cau hinh timeout va HTTP
-     * @return client da duoc cau hinh timeout, redirect
+     * @param crawlerProperties cấu hình timeout và HTTP
+     * @return client đã được cấu hình timeout, redirect
      */
     @Bean
     public OkHttpClient okHttpClient(CrawlerProperties crawlerProperties) {
@@ -33,9 +33,9 @@ public class AppConfig {
     }
 
     /**
-     * Khoi tao ObjectMapper dung chung cho serialize/deserialize JSON.
+     * Khởi tạo ObjectMapper dùng chung cho serialize/deserialize JSON.
      *
-     * @return ObjectMapper da tu dong nap cac module can thiet
+     * @return ObjectMapper đã tự động nạp các module cần thiết
      */
     @Bean
     public ObjectMapper objectMapper() {

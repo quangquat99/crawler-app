@@ -4,7 +4,7 @@ import com.quangph.crawlerapp.entity.CrawlJobEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
- * Repository JPA de thao tac voi bang crawl_job khi can luu database.
+ * Repository JPA để thao tác với bảng crawl_job khi cần lưu database.
  */
 public interface CrawlJobRepository extends JpaRepository<CrawlJobEntity, Long> {
 }
