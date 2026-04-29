@@ -114,7 +114,7 @@ public class ApiCrawlerStrategy implements CrawlerStrategy {
 
                         return new CrawlExecutionResult(
                                 enrichedItems,
-                                "Lay du lieu list va detail tu JSON API response"
+                                "Lấy data từ list và detail company JSON API Response"
                         );
                     }
                 }

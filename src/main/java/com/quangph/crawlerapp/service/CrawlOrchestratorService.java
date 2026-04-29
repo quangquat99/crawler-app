@@ -111,10 +111,10 @@ public class CrawlOrchestratorService {
         }
 
         return new CrawledCompanyRow(
-                firstNonBlank(detail.path("nameEn").asText(null), list.path("compName").asText(null)),
-                firstNonBlank(detail.path("status").asText(null), list.path("status").asText(null)),
-                firstNonBlank(detail.path("countryNameEn").asText(null), list.path("countryName").asText(null)),
-                detail.path("registeredAddressEn").asText(""),
+                firstNonBlank(detail.path("nameEn").asText(""), list.path("compName").asText("")),
+                firstNonBlank(detail.path("status").asText(""), list.path("status").asText("")),
+                firstNonBlank(detail.path("countryNameEn").asText(""), list.path("countryName").asText("")),
+                firstNonBlank(detail.path("registeredAddressEn").asText(""), detail.path("registeredAddressCn").asText("")),
                 mainUser.path("email").asText(""),
                 mainUser.path("wechat").asText(""),
                 mainUser.path("whatsapp").asText(""),
@@ -122,6 +122,8 @@ public class CrawlOrchestratorService {
                 mainUser.path("mobile").asText(""),
                 detail.path("companySize").asText(""),
                 detail.path("note").asText("")
+
+
         );
     }
 

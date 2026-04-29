@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crawl Data Demo</title>
+    <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+            integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+            crossorigin="anonymous"
+    >
+    <style>
+        :root {
+            --page-bg: #f4f7fb;
+            --panel-bg: #ffffff;
+            --panel-border: #dbe3ef;
+            --text-muted: #617189;
+            --accent: #0d6efd;
+            --accent-dark: #0a58ca;
+            --success-bg: #eaf7ef;
+            --error-bg: #fdecec;
+            --shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+        }
+
+        body {
+            margin: 0;
+            background: linear-gradient(180deg, #eef4ff 0%, var(--page-bg) 260px);
+            color: #18212f;
+            font-family: Arial, sans-serif;
+        }
+
+        .page-shell {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px 48px;
+        }
+
+        .hero-block {
+            margin-bottom: 24px;
+        }
+
+        .hero-title {
+            margin: 0 0 10px;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .hero-subtitle {
+            max-width: 820px;
+            margin: 0;
+            color: var(--text-muted);
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        .panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+        }
+
+        .control-panel {
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .panel-title {
+            margin: 0 0 6px;
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .panel-subtitle {
+            margin: 0 0 20px;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .section-label {
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #42526b;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .form-control,
+        .form-select {
+            min-height: 46px;
+            border-color: #ccd6e4;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #86b7fe;
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+        }
+
+        .strategy-note {
+            padding: 14px 16px;
+            border: 1px dashed #c8d4e5;
+            border-radius: 8px;
+            color: var(--text-muted);
+            background: #f9fbff;
+        }
+
+        .action-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+            margin-top: 24px;
+        }
+
+        .btn-primary {
+            min-width: 150px;
+        }
+
+        .btn-download {
+            display: none;
+            min-width: 170px;
+        }
+
+        .status-inline {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .feedback-box {
+            display: none;
+            margin-top: 16px;
+            padding: 14px 16px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+        }
+
+        .feedback-box.success {
+            display: block;
+            background: var(--success-bg);
+            color: #1f6b3d;
+            border: 1px solid #b8e1c7;
+        }
+
+        .feedback-box.error {
+            display: block;
+            background: var(--error-bg);
+            color: #a12626;
+            border: 1px solid #f3bcbc;
+        }
+
+        .results-panel {
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .results-header {
+            padding: 24px 24px 18px;
+            border-bottom: 1px solid var(--panel-border);
+        }
+
+        .result-meta-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            margin-top: 18px;
+        }
+
+        .meta-item {
+            padding: 14px 16px;
+            border: 1px solid #e0e7f1;
+            border-radius: 8px;
+            background: #fbfcff;
+        }
+
+        .meta-label {
+            display: block;
+            margin-bottom: 6px;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .meta-value {
+            font-size: 0.96rem;
+            font-weight: 700;
+            word-break: break-word;
+        }
+
+        .empty-state {
+            padding: 40px 24px;
+            text-align: center;
+            color: var(--text-muted);
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        table {
+            margin: 0;
+            min-width: 1180px;
+        }
+
+        thead th {
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            background: #f7faff;
+            color: #324055;
+            font-size: 0.84rem;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            white-space: nowrap;
+        }
+
+        tbody td {
+            vertical-align: top;
+            font-size: 0.94rem;
+            line-height: 1.5;
+        }
+
+        .cell-company {
+            min-width: 240px;
+            font-weight: 700;
+            color: #1e2b3c;
+        }
+
+        .cell-address {
+            min-width: 300px;
+        }
+
+        .cell-note {
+            min-width: 180px;
+        }
+
+        .placeholder {
+            color: #99a6ba;
+        }
+
+        @media (max-width: 768px) {
+            .page-shell {
+                padding: 28px 14px 36px;
+            }
+
+            .control-panel,
+            .results-header {
+                padding: 18px;
+            }
+
+            .hero-title {
+                font-size: 1.7rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="page-shell">
+    <section class="hero-block">
+        <h1 class="hero-title">Crawl Data Demo</h1>
+        <p class="hero-subtitle">
+            Giao diện demo cho luồng crawl dữ liệu công ty qua backend API, có hỗ trợ chọn strategy, render bảng kết quả
+            và export Excel sau khi crawl thành công.
+        </p>
+    </section>
+
+    <section class="panel control-panel">
+        <h2 class="panel-title">Crawl Request</h2>
+        <p class="panel-subtitle">Nhập thông tin crawl, gọi backend và theo dõi trạng thái thực thi theo thời gian thực.</p>
+
+        <div class="row g-3">
+            <div class="col-lg-4 col-md-6">
+                <label class="form-label section-label" for="strategy">Crawl Strategy</label>
+                <select id="strategy" class="form-select">
+                    <option value="API">API</option>
+                    <option value="HTML">HTML</option>
+                    <option value="Playwright">Playwright</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="apiFormSection" class="mt-4">
+            <div class="row g-3">
+                <div class="col-lg-6">
+                    <label class="form-label section-label" for="pageUrl">pageUrl</label>
+                    <input
+                            id="pageUrl"
+                            type="url"
+                            class="form-control"
+                            placeholder="page URL, e.g. https://www.jctrans.com/en/company/"
+                            value="https://www.jctrans.com/en/company/"
+                    >
+                </div>
+                <div class="col-lg-6">
+                    <label class="form-label section-label" for="token">token</label>
+                    <input
+                            id="token"
+                            type="text"
+                            class="form-control"
+                            placeholder="Optional API token"
+                    >
+                </div>
+                <div class="col-lg-2 col-md-4">
+                    <label class="form-label section-label" for="page">page</label>
+                    <input id="page" type="number" min="1" class="form-control" value="1">
+                </div>
+                <div class="col-lg-2 col-md-4">
+                    <label class="form-label section-label" for="pageSize">pageSize</label>
+                    <input id="pageSize" type="number" min="1" class="form-control" value="20">
+                </div>
+                <div class="col-lg-2 col-md-4">
+                    <label class="form-label section-label" for="country">country</label>
+                    <select id="country" class="form-select">
+                        <option value="1">China</option>
+                        <option value="100">Taiwan</option>
+                        <option value="75">HongKong</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div id="strategyNote" class="strategy-note mt-4" style="display: none;">
+            Giao diện hiện chỉ có input chuyên biệt cho strategy API. Khi backend hỗ trợ payload riêng cho HTML hoặc
+            Playwright, có thể mở rộng block form này mà không cần đổi cấu trúc trang.
+        </div>
+
+        <div class="action-bar">
+            <button id="crawlButton" type="button" class="btn btn-primary">
+                <span id="crawlButtonText">Crawl Data</span>
+            </button>
+            <button id="downloadButton" type="button" class="btn btn-outline-success btn-download">
+                Download Excel
+            </button>
+            <div id="loadingState" class="status-inline">
+                <div class="spinner-border spinner-border-sm text-primary" role="status" aria-hidden="true"></div>
+                <span>Đang crawl dữ liệu...</span>
+            </div>
+        </div>
+
+        <div id="feedbackBox" class="feedback-box"></div>
+    </section>
+
+    <section class="panel results-panel">
+        <div class="results-header">
+            <h2 class="panel-title">Crawl Result</h2>
+            <p class="panel-subtitle mb-0">Kết quả trả về sẽ được render thành bảng và hiển thị metadata của lần crawl.</p>
+
+            <div id="resultMeta" class="result-meta-grid" style="display: none;">
+                <div class="meta-item">
+                    <span class="meta-label">Requested URL</span>
+                    <span id="metaRequestedUrl" class="meta-value"></span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Strategy Used</span>
+                    <span id="metaStrategy" class="meta-value"></span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Total Items</span>
+                    <span id="metaTotalItems" class="meta-value"></span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Crawled At</span>
+                    <span id="metaCrawledAt" class="meta-value"></span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Message</span>
+                    <span id="metaMessage" class="meta-value"></span>
+                </div>
+            </div>
+        </div>
+
+        <div id="emptyState" class="empty-state">
+            Chưa có dữ liệu. Thực hiện crawl để xem kết quả tại đây.
+        </div>
+
+        <div id="resultsTableContainer" class="table-wrap" style="display: none;">
+            <table class="table table-hover table-bordered align-middle">
+                <thead>
+                <tr>
+                    <th scope="col">Tên CTY</th>
+                    <th scope="col">Tình trạng</th>
+                    <th scope="col">Country</th>
+                    <th scope="col">Địa chỉ</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">WeChat</th>
+                    <th scope="col">Whatsapp</th>
+                    <th scope="col">Skype</th>
+                    <th scope="col">Phone</th>
+                    <th scope="col">Company size</th>
+                    <th scope="col">Note</th>
+                </tr>
+                </thead>
+                <tbody id="resultsTableBody"></tbody>
+            </table>
+        </div>
+    </section>
+</div>
+
+<script>
+    const SERVER_PORT = "2412";
+    const API_BASE = resolveApiBase();
+    const API_ENDPOINTS = {
+        crawl: API_BASE + "/api/v1/crawls",
+        export: API_BASE + "/api/v1/crawls/export"
+    };
+
+    const state = {
+        isLoading: false,
+        lastPayload: null,
+        lastResponse: null
+    };
+
+    const elements = {
+        strategy: document.getElementById("strategy"),
+        apiFormSection: document.getElementById("apiFormSection"),
+        strategyNote: document.getElementById("strategyNote"),
+        pageUrl: document.getElementById("pageUrl"),
+        token: document.getElementById("token"),
+        page: document.getElementById("page"),
+        pageSize: document.getElementById("pageSize"),
+        country: document.getElementById("country"),
+        crawlButton: document.getElementById("crawlButton"),
+        crawlButtonText: document.getElementById("crawlButtonText"),
+        downloadButton: document.getElementById("downloadButton"),
+        loadingState: document.getElementById("loadingState"),
+        feedbackBox: document.getElementById("feedbackBox"),
+        resultMeta: document.getElementById("resultMeta"),
+        metaRequestedUrl: document.getElementById("metaRequestedUrl"),
+        metaStrategy: document.getElementById("metaStrategy"),
+        metaTotalItems: document.getElementById("metaTotalItems"),
+        metaCrawledAt: document.getElementById("metaCrawledAt"),
+        metaMessage: document.getElementById("metaMessage"),
+        emptyState: document.getElementById("emptyState"),
+        resultsTableContainer: document.getElementById("resultsTableContainer"),
+        resultsTableBody: document.getElementById("resultsTableBody")
+    };
+
+    document.addEventListener("DOMContentLoaded", initializePage);
+
+    function initializePage() {
+        elements.strategy.addEventListener("change", handleStrategyChange);
+        elements.crawlButton.addEventListener("click", handleCrawl);
+        elements.downloadButton.addEventListener("click", handleDownloadExcel);
+        handleStrategyChange();
+    }
+
+    function handleStrategyChange() {
+        const selectedStrategy = elements.strategy.value;
+        const isApiStrategy = selectedStrategy === "API";
+
+        elements.apiFormSection.style.display = isApiStrategy ? "block" : "none";
+        elements.strategyNote.style.display = isApiStrategy ? "none" : "block";
+    }
+
+    async function handleCrawl() {
+        if (state.isLoading) {
+            return;
+        }
+
+        try {
+            clearFeedback();
+            const payload = buildPayload();
+            state.lastPayload = payload;
+
+            setLoadingState(true);
+            const response = await postJson(API_ENDPOINTS.crawl, payload);
+
+            state.lastResponse = response;
+            renderResponse(response);
+            toggleDownloadButton(true);
+            showFeedback("success", "Crawl completed successfully.");
+        } catch (error) {
+            state.lastResponse = null;
+            toggleDownloadButton(false);
+            resetResultsView();
+            showFeedback("error", error.message || "Crawl failed.");
+        } finally {
+            setLoadingState(false);
+        }
+    }
+
+    async function handleDownloadExcel() {
+        if (state.isLoading || !state.lastPayload) {
+            return;
+        }
+
+        try {
+            clearFeedback();
+            setLoadingState(true, "Preparing Excel...");
+
+            const response = await fetch(API_ENDPOINTS.export, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(state.lastPayload)
+            });
+
+            if (!response.ok) {
+                throw new Error(await extractErrorMessage(response));
+            }
+
+            const blob = await response.blob();
+            const fileName = resolveDownloadFileName(response.headers.get("Content-Disposition"));
+            triggerFileDownload(blob, fileName);
+            showFeedback("success", "Excel file downloaded successfully.");
+        } catch (error) {
+            showFeedback("error", error.message || "Download failed.");
+        } finally {
+            setLoadingState(false);
+        }
+    }
+
+    function buildPayload() {
+        if (elements.strategy.value !== "API") {
+            throw new Error("Hiện tại demo chỉ gửi payload crawl cho strategy API.");
+        }
+
+        const pageUrl = elements.pageUrl.value.trim();
+        const token = elements.token.value.trim();
+        const page = parseInteger(elements.page.value, "page");
+        const pageSize = parseInteger(elements.pageSize.value, "pageSize");
+        const countryId = parseInteger(elements.country.value, "country");
+
+        if (!pageUrl) {
+            throw new Error("pageUrl is required.");
+        }
+
+        validateUrl(pageUrl);
+
+        return {
+            pageUrl: pageUrl,
+            page: page,
+            pageSize: pageSize,
+            countryId: countryId,
+            token: token || null
+        };
+    }
+
+    async function postJson(url, payload) {
+        const response = await fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+            throw new Error(await extractErrorMessage(response));
+        }
+
+        return response.json();
+    }
+
+    async function extractErrorMessage(response) {
+        const fallback = "Request failed with status " + response.status + ".";
+
+        try {
+            const data = await response.json();
+            if (typeof data === "string" && data.trim()) {
+                return data;
+            }
+
+            if (data && typeof data.message === "string" && data.message.trim()) {
+                return data.message;
+            }
+
+            if (data && Array.isArray(data.errors) && data.errors.length > 0) {
+                return data.errors.join(", ");
+            }
+
+            return fallback;
+        } catch (error) {
+            return fallback;
+        }
+    }
+
+    function renderResponse(response) {
+        const items = Array.isArray(response.items) ? response.items : [];
+
+        elements.metaRequestedUrl.textContent = response.requestedUrl || "-";
+        elements.metaStrategy.textContent = response.strategyUsed || "-";
+        elements.metaTotalItems.textContent = String(response.totalItems ?? items.length);
+        elements.metaCrawledAt.textContent = formatDateTime(response.crawledAt);
+        elements.metaMessage.textContent = response.message || "-";
+        elements.resultMeta.style.display = "grid";
+
+        renderTable(items);
+    }
+
+    function renderTable(items) {
+        elements.resultsTableBody.innerHTML = "";
+
+        if (!items.length) {
+            elements.resultsTableContainer.style.display = "none";
+            elements.emptyState.style.display = "block";
+            elements.emptyState.textContent = "Crawl completed nhưng không có item nào được trả về.";
+            return;
+        }
+
+        const rowsHtml = items.map(function (item) {
+            return [
+                "<tr>",
+                buildCell(item.companyName, "cell-company"),
+                buildCell(item.status),
+                buildCell(item.country),
+                buildCell(item.address, "cell-address"),
+                buildCell(item.email),
+                buildCell(item.weChat),
+                buildCell(item.whatsapp),
+                buildCell(item.skype),
+                buildCell(item.phone),
+                buildCell(item.companySize),
+                buildCell(item.note, "cell-note"),
+                "</tr>"
+            ].join("");
+        }).join("");
+
+        elements.resultsTableBody.innerHTML = rowsHtml;
+        elements.emptyState.style.display = "none";
+        elements.resultsTableContainer.style.display = "block";
+    }
+
+    function buildCell(value, additionalClass) {
+        const safeValue = escapeHtml(value);
+        const content = safeValue ? safeValue : '<span class="placeholder">-</span>';
+        const className = additionalClass ? " class=\"" + additionalClass + "\"" : "";
+        return "<td" + className + ">" + content + "</td>";
+    }
+
+    function resetResultsView() {
+        elements.resultMeta.style.display = "none";
+        elements.resultsTableContainer.style.display = "none";
+        elements.resultsTableBody.innerHTML = "";
+        elements.emptyState.style.display = "block";
+        elements.emptyState.textContent = "Chưa có dữ liệu. Thực hiện crawl để xem kết quả tại đây.";
+    }
+
+    function setLoadingState(isLoading, loadingText) {
+        state.isLoading = isLoading;
+        elements.crawlButton.disabled = isLoading;
+        elements.downloadButton.disabled = isLoading;
+        elements.loadingState.style.display = isLoading ? "inline-flex" : "none";
+        elements.crawlButtonText.textContent = isLoading ? (loadingText || "Processing...") : "Crawl Data";
+    }
+
+    function toggleDownloadButton(visible) {
+        elements.downloadButton.style.display = visible ? "inline-block" : "none";
+    }
+
+    function showFeedback(type, message) {
+        elements.feedbackBox.className = "feedback-box " + type;
+        elements.feedbackBox.textContent = message;
+    }
+
+    function clearFeedback() {
+        elements.feedbackBox.className = "feedback-box";
+        elements.feedbackBox.textContent = "";
+        elements.feedbackBox.style.display = "none";
+    }
+
+    function parseInteger(value, fieldName) {
+        const parsedValue = Number.parseInt(value, 10);
+        if (!Number.isInteger(parsedValue) || parsedValue < 1) {
+            throw new Error(fieldName + " must be a positive integer.");
+        }
+        return parsedValue;
+    }
+
+    function validateUrl(url) {
+        try {
+            new URL(url);
+        } catch (error) {
+            throw new Error("pageUrl is not a valid URL.");
+        }
+    }
+
+    function formatDateTime(value) {
+        if (!value) {
+            return "-";
+        }
+
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) {
+            return String(value);
+        }
+
+        return new Intl.DateTimeFormat("vi-VN", {
+            dateStyle: "medium",
+            timeStyle: "medium"
+        }).format(date);
+    }
+
+    function resolveDownloadFileName(contentDisposition) {
+        if (!contentDisposition) {
+            return "crawl-result.xlsx";
+        }
+
+        const match = contentDisposition.match(/filename="?([^"]+)"?/i);
+        return match && match[1] ? match[1] : "crawl-result.xlsx";
+    }
+
+    function triggerFileDownload(blob, fileName) {
+        const blobUrl = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+
+        link.href = blobUrl;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+
+        URL.revokeObjectURL(blobUrl);
+    }
+
+    function escapeHtml(value) {
+        if (value === null || value === undefined) {
+            return "";
+        }
+
+        return String(value)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#39;");
+    }
+
+    function resolveApiBase() {
+        const protocol = window.location.protocol === "file:" ? "http:" : window.location.protocol;
+        const hostname = window.location.hostname || "localhost";
+        const currentPort = window.location.port;
+
+        if (protocol.startsWith("http") && currentPort === SERVER_PORT) {
+            return window.location.origin;
+        }
+
+        return protocol + "//" + hostname + ":" + SERVER_PORT;
+    }
+</script>
+</body>
+</html>
