@@ -22,7 +22,7 @@ public class ExcelExportService {
             Sheet sheet = workbook.createSheet("Crawl Result");
 
             String[] headers = {
-                    "Tên CTY",
+                    "Tên công ty",
                     "Tình trạng",
                     "Country",
                     "Địa chỉ",

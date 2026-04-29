@@ -14,6 +14,6 @@ public record CrawlResponse(
         String message,
         int totalItems,
         Instant crawledAt,
-        List<JsonNode> items
+        List<CrawledCompanyRow> items
 ) {
 }

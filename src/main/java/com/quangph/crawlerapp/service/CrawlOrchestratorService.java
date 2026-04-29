@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.quangph.crawlerapp.dto.request.CrawlRequest;
 import com.quangph.crawlerapp.dto.response.CrawlResponse;
 import com.quangph.crawlerapp.dto.response.CrawledCompanyExcelRow;
+import com.quangph.crawlerapp.dto.response.CrawledCompanyRow;
 import com.quangph.crawlerapp.service.strategy.CrawlExecutionResult;
 import com.quangph.crawlerapp.service.strategy.CrawlerStrategy;
 import org.slf4j.Logger;
@@ -45,13 +46,18 @@ public class CrawlOrchestratorService {
             CrawlExecutionResult result = crawlerStrategy.crawl(request);
             if (!result.items().isEmpty()) {
                 logResult(result);
+
+                List<CrawledCompanyRow> rows = result.items().stream()
+                        .map(this::mapToCompanyRow)
+                        .toList();
+
                 return new CrawlResponse(
                         request.pageUrl(),
                         crawlerStrategy.getName(),
                         result.message(),
                         result.items().size(),
                         Instant.now(),
-                        result.items()
+                        rows
                 );
             }
 
@@ -77,7 +83,23 @@ public class CrawlOrchestratorService {
         return excelExportService.exportCompanyRows(rows);
     }
 
-    private CrawledCompanyExcelRow mapToExcelRow(JsonNode item) {
+    private CrawledCompanyExcelRow mapToExcelRow(CrawledCompanyRow item) {
+        return new CrawledCompanyExcelRow(
+                item.companyName(),
+                item.status(),
+                item.country(),
+                item.address(),
+                item.email(),
+                item.weChat(),
+                item.whatsapp(),
+                item.skype(),
+                item.phone(),
+                item.companySize(),
+                item.note()
+        );
+    }
+
+    private CrawledCompanyRow mapToCompanyRow(JsonNode item) {
         JsonNode list = item.path("list");
         JsonNode detail = item.path("detail");
 
@@ -88,7 +110,7 @@ public class CrawlOrchestratorService {
             }
         }
 
-        return new CrawledCompanyExcelRow(
+        return new CrawledCompanyRow(
                 firstNonBlank(detail.path("nameEn").asText(null), list.path("compName").asText(null)),
                 firstNonBlank(detail.path("status").asText(null), list.path("status").asText(null)),
                 firstNonBlank(detail.path("countryNameEn").asText(null), list.path("countryName").asText(null)),
