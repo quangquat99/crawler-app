@@ -22,14 +22,5 @@ public interface CrawlerStrategy {
      */
     boolean supports(String url);
 
-    /**
-     * Thực hiện crawl URL và trả về kết quả.
-     *
-     * @param url URL cần crawl
-     * @return kết quả crawl của strategy
-     */
-    CrawlExecutionResult crawl(String url);
-
-
-    CrawlExecutionResult crawl(CrawlRequest url);
+    CrawlExecutionResult crawl(CrawlRequest request);
 }

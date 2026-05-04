@@ -12,7 +12,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Service điều phối thứ tự các chiến lược crawl theo rule:
@@ -22,6 +24,7 @@ import java.util.List;
 public class CrawlOrchestratorService {
 
     private static final Logger log = LoggerFactory.getLogger(CrawlOrchestratorService.class);
+    private static final Set<Integer> SUPPORTED_PAGE_SIZES = Set.of(10, 20, 50);
 
     private final List<CrawlerStrategy> crawlerStrategies;
     private final ExcelExportService excelExportService;
@@ -37,37 +40,72 @@ public class CrawlOrchestratorService {
      * @return kết quả crawl cuối cùng
      */
     public CrawlResponse crawl(CrawlRequest request) {
+        CrawlResponse validationFailure = validateRequest(request);
+        if (validationFailure != null) {
+            return validationFailure;
+        }
+
+        Instant startedAt = Instant.now();
+        String requestedUrl = request.pageUrl();
+        String lastMessage = "Khong crawl duoc du lieu tu URL nay";
+        Set<String> attemptedStrategies = new LinkedHashSet<>();
+
         for (CrawlerStrategy crawlerStrategy : crawlerStrategies) {
-            if (!crawlerStrategy.supports(request.pageUrl())) {
+            if (!crawlerStrategy.supports(requestedUrl)) {
                 continue;
             }
 
-            log.info("Bat dau crawl voi strategy={}", crawlerStrategy.getName());
+            attemptedStrategies.add(crawlerStrategy.getName());
             CrawlExecutionResult result = crawlerStrategy.crawl(request);
-            if (!result.items().isEmpty()) {
-                logResult(result);
+            if (result.message() != null && !result.message().isBlank()) {
+                lastMessage = result.message();
+            }
 
+            if (result.success()) {
                 List<CrawledCompanyRow> rows = result.items().stream()
                         .map(this::mapToCompanyRow)
                         .toList();
 
+                long durationMs = Instant.now().toEpochMilli() - startedAt.toEpochMilli();
+                log.info("crawl_completed strategy={} url={} page={} pageSize={} totalItems={} durationMs={}",
+                        crawlerStrategy.getName(),
+                        requestedUrl,
+                        request.page(),
+                        request.pageSize(),
+                        result.totalItems(),
+                        durationMs);
+                logItemsDebug(result);
+
                 return new CrawlResponse(
-                        request.pageUrl(),
+                        true,
+                        requestedUrl,
                         crawlerStrategy.getName(),
                         result.message(),
-                        result.items().size(),
+                        request.page(),
+                        request.pageSize(),
+                        result.totalItems(),
+                        result.totalPages(),
                         Instant.now(),
                         rows
                 );
             }
 
-            log.info("Strategy {} khong lay duoc data, ly do: {}", crawlerStrategy.getName(), result.message());
+            log.warn("crawl_failed strategy={} url={} page={} pageSize={} message={}",
+                    crawlerStrategy.getName(),
+                    requestedUrl,
+                    request.page(),
+                    request.pageSize(),
+                    result.message());
         }
 
         return new CrawlResponse(
-                request.pageUrl(),
-                "NONE",
-                "Khong crawl duoc du lieu tu URL nay",
+                false,
+                requestedUrl,
+                attemptedStrategies.isEmpty() ? "NONE" : String.join(" -> ", attemptedStrategies),
+                lastMessage,
+                request.page(),
+                request.pageSize(),
+                0,
                 0,
                 Instant.now(),
                 List.of()
@@ -76,6 +114,10 @@ public class CrawlOrchestratorService {
 
     public byte[] crawlAndExportExcel(CrawlRequest request) {
         CrawlResponse crawlResponse = crawl(request);
+        if (!crawlResponse.success()) {
+            throw new IllegalStateException(crawlResponse.message());
+        }
+
         List<CrawledCompanyExcelRow> rows = crawlResponse.items().stream()
                 .map(this::mapToExcelRow)
                 .toList();
@@ -127,6 +169,24 @@ public class CrawlOrchestratorService {
         );
     }
 
+    private CrawlResponse validateRequest(CrawlRequest request) {
+        if (!SUPPORTED_PAGE_SIZES.contains(request.pageSize())) {
+            return new CrawlResponse(
+                    false,
+                    request.pageUrl(),
+                    "NONE",
+                    "pageSize chi duoc phep la 10, 20 hoac 50",
+                    request.page(),
+                    request.pageSize(),
+                    0,
+                    0,
+                    Instant.now(),
+                    List.of()
+            );
+        }
+        return null;
+    }
+
     private String firstNonBlank(String first, String second) {
         if (first != null && !first.isBlank()) {
             return first;
@@ -140,7 +200,10 @@ public class CrawlOrchestratorService {
      *
      * @param result kết quả crawl chứa danh sách item
      */
-    private void logResult(CrawlExecutionResult result) {
-        result.items().forEach(item -> log.info("Raw crawl item: {}", item.toPrettyString()));
+    private void logItemsDebug(CrawlExecutionResult result) {
+        if (!log.isDebugEnabled()) {
+            return;
+        }
+        result.items().forEach(item -> log.debug("Raw crawl item: {}", item.toPrettyString()));
     }
 }

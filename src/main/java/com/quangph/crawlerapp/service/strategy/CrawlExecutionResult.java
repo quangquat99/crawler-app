@@ -8,16 +8,22 @@ import java.util.List;
  * DTO nội bộ đại diện cho kết quả của một strategy crawl.
  */
 public record CrawlExecutionResult(
+        boolean success,
         List<JsonNode> items,
-        String message
+        String message,
+        long totalItems,
+        int totalPages
 ) {
-    /**
-     * Tạo kết quả rỗng khi strategy không lấy được data.
-     *
-     * @param message thông điệp mô tả lý do
-     * @return kết quả rỗng
-     */
-    public static CrawlExecutionResult empty(String message) {
-        return new CrawlExecutionResult(List.of(), message);
+    public static CrawlExecutionResult success(
+            List<JsonNode> items,
+            String message,
+            long totalItems,
+            int totalPages
+    ) {
+        return new CrawlExecutionResult(true, items, message, totalItems, totalPages);
+    }
+
+    public static CrawlExecutionResult failure(String message) {
+        return new CrawlExecutionResult(false, List.of(), message, 0, 0);
     }
 }

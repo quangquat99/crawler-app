@@ -14,6 +14,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import java.io.InterruptedIOException;
 import java.io.IOException;
 import java.util.*;
 
@@ -64,11 +65,6 @@ public class ApiCrawlerStrategy implements CrawlerStrategy {
         return true;
     }
 
-    @Override
-    public CrawlExecutionResult crawl(String url) {
-        return null;
-    }
-
     /**
      * Thử tìm API mapping và gọi API để lấy data.
      *
@@ -85,7 +81,7 @@ public class ApiCrawlerStrategy implements CrawlerStrategy {
 
         Optional<String> apiUrlOptional = resolveApiUrl(pageUrl);
         if (apiUrlOptional.isEmpty()) {
-            return CrawlExecutionResult.empty("Khong tim thay API mapping public phu hop");
+            return CrawlExecutionResult.failure("Khong tim thay API mapping public phu hop");
         }
 
         String apiUrl = apiUrlOptional.get();
@@ -93,33 +89,39 @@ public class ApiCrawlerStrategy implements CrawlerStrategy {
 
         try (Response response = okHttpClient.newCall(request).execute()) {
             if (!response.isSuccessful()) {
-                return CrawlExecutionResult.empty("API tra ve status " + response.code());
+                return CrawlExecutionResult.failure("API tra ve status " + response.code());
             }
 
             ResponseBody responseBody = response.body();
             if (responseBody == null) {
-                return CrawlExecutionResult.empty("API khong co response body");
+                return CrawlExecutionResult.failure("API khong co response body");
             }
 
             String rawBody = responseBody.string();
-            log.info("API body preview: {}", limit(rawBody));
+            if (log.isDebugEnabled()) {
+                log.debug("API body preview: {}", limit(rawBody));
+            }
 
             // Định nghĩa chuẩn: nếu là JSON thì parse bằng Jackson.
             if (looksLikeJson(rawBody)) {
-                objectMapper.readTree(rawBody);
+                JsonNode root = objectMapper.readTree(rawBody);
                 if (jcTransCompanyParser.supports(pageUrl) || looksLikeJcTransCompanyApi(rawBody)) {
-                    List<JsonNode> listItems  = jcTransCompanyParser.extractApiRecords(rawBody);
-                    if (!listItems.isEmpty()) {
-                        List<JsonNode> enrichedItems = enrichCompanyDetails(listItems, token);
+                    List<JsonNode> listItems = jcTransCompanyParser.extractApiRecords(root);
+                    List<JsonNode> enrichedItems = enrichCompanyDetails(listItems, token);
+                    long totalItems = resolveTotalItems(root, enrichedItems.size());
+                    int totalPages = resolveTotalPages(root, pageSize, totalItems);
 
-                        return new CrawlExecutionResult(
-                                enrichedItems,
-                                "Lấy data từ list và detail company JSON API Response"
-                        );
-                    }
+                    return CrawlExecutionResult.success(
+                            enrichedItems,
+                            enrichedItems.isEmpty()
+                                    ? "Crawl thành công nhưng không có dữ liệu ở trang hiện tại"
+                                    : "Lấy data từ list/detail company JSON API response",
+                            totalItems,
+                            totalPages
+                    );
                 }
 
-                return CrawlExecutionResult.empty("API tra JSON nhung khong parse duoc thanh data");
+                return CrawlExecutionResult.failure("API tra JSON nhung khong parse duoc thanh data");
             }
 
 //            if (jcTransCompanyParser.supports(pageUrl)) {
@@ -132,9 +134,15 @@ public class ApiCrawlerStrategy implements CrawlerStrategy {
 //                }
 //            }
 
-            return CrawlExecutionResult.empty("API response khong parse duoc thanh data");
+            return CrawlExecutionResult.failure("API response khong parse duoc thanh data");
+        } catch (InterruptedIOException exception) {
+            log.warn("Crawl timeout via strategy={} url={} page={} pageSize={}",
+                    getName(), pageUrl, page, pageSize, exception);
+            return CrawlExecutionResult.failure("Crawl timeout, vui long thu lai voi pageSize nho hon");
         } catch (IOException exception) {
-            return CrawlExecutionResult.empty("Loi goi API: " + exception.getMessage());
+            log.warn("Crawl IO error via strategy={} url={} page={} pageSize={}",
+                    getName(), pageUrl, page, pageSize, exception);
+            return CrawlExecutionResult.failure("Crawl that bai do loi ket noi, vui long thu lai");
         }
     }
 
@@ -184,14 +192,17 @@ public class ApiCrawlerStrategy implements CrawlerStrategy {
      */
     private boolean looksLikeJcTransCompanyApi(String rawBody) {
         try {
-            return objectMapper.readTree(rawBody)
-                    .path("data")
-                    .path("records")
-                    .path(0)
-                    .hasNonNull("compName");
+            return looksLikeJcTransCompanyApi(objectMapper.readTree(rawBody));
         } catch (Exception exception) {
             return false;
         }
+    }
+
+    private boolean looksLikeJcTransCompanyApi(JsonNode root) {
+        return root.path("data")
+                .path("records")
+                .path(0)
+                .hasNonNull("compName");
     }
 
     /**
@@ -217,6 +228,46 @@ public class ApiCrawlerStrategy implements CrawlerStrategy {
         }
         int maxLength = crawlerProperties.getHttp().getMaxBodyLogLength();
         return rawBody.length() <= maxLength ? rawBody : rawBody.substring(0, maxLength) + "...";
+    }
+
+    private long resolveTotalItems(JsonNode root, int fallbackItemCount) {
+        JsonNode data = root.path("data");
+        long totalItems = firstPositiveLong(data, "total", "totalItems", "totalCount", "count");
+        return totalItems > 0 ? totalItems : fallbackItemCount;
+    }
+
+    private int resolveTotalPages(JsonNode root, int pageSize, long totalItems) {
+        JsonNode data = root.path("data");
+        int totalPages = firstPositiveInt(data, "pages", "totalPages", "pageCount");
+        if (totalPages > 0) {
+            return totalPages;
+        }
+        if (totalItems <= 0 || pageSize <= 0) {
+            return 0;
+        }
+        return (int) Math.ceil((double) totalItems / pageSize);
+    }
+
+    private long firstPositiveLong(JsonNode node, String... fieldNames) {
+        for (String fieldName : fieldNames) {
+            JsonNode child = node.path(fieldName);
+            long value = child.asLong(0);
+            if (value > 0) {
+                return value;
+            }
+        }
+        return 0;
+    }
+
+    private int firstPositiveInt(JsonNode node, String... fieldNames) {
+        for (String fieldName : fieldNames) {
+            JsonNode child = node.path(fieldName);
+            int value = child.asInt(0);
+            if (value > 0) {
+                return value;
+            }
+        }
+        return 0;
     }
 
     private Request buildJcTransRequest(String apiUrl, int current, int size, int countryId, String token) {

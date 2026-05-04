@@ -9,10 +9,14 @@ import java.util.List;
  * DTO đầu ra cho kết quả crawl URL.
  */
 public record CrawlResponse(
+        boolean success,
         String requestedUrl,
         String strategyUsed,
         String message,
-        int totalItems,
+        int page,
+        int pageSize,
+        long totalItems,
+        int totalPages,
         Instant crawledAt,
         List<CrawledCompanyRow> items
 ) {

@@ -140,7 +140,15 @@ public class JcTransCompanyParser {
      */
     public List<JsonNode> extractApiRecords(String rawBody) {
         try {
-            JsonNode records = objectMapper.readTree(rawBody).path("data").path("records");
+            return extractApiRecords(objectMapper.readTree(rawBody));
+        } catch (Exception exception) {
+            return List.of();
+        }
+    }
+
+    public List<JsonNode> extractApiRecords(JsonNode root) {
+        try {
+            JsonNode records = root.path("data").path("records");
             if (!records.isArray() || records.isEmpty()) {
                 return List.of();
             }

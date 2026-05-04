@@ -62,14 +62,9 @@ public class PlaywrightCrawlerStrategy implements CrawlerStrategy {
         return true;
     }
 
-    /**
-     * Dùng Playwright mở trang, chờ render xong rồi parse DOM cuối cùng.
-     *
-     * @param url URL cần crawl
-     * @return kết quả crawl bằng Playwright
-     */
     @Override
-    public CrawlExecutionResult crawl(String url) {
+    public CrawlExecutionResult crawl(CrawlRequest request) {
+        String url = request.pageUrl();
         try (Playwright playwright = Playwright.create()) {
             BrowserType.LaunchOptions launchOptions = new BrowserType.LaunchOptions()
                     .setHeadless(crawlerProperties.getPlaywright().isHeadless());
@@ -88,19 +83,20 @@ public class PlaywrightCrawlerStrategy implements CrawlerStrategy {
                         .toList();
                 if (items.isEmpty()) {
                     dumpRenderedHtml(html);
-                    return CrawlExecutionResult.empty("Playwright da render nhung van chua bat duoc selector");
                 }
 
-                return new CrawlExecutionResult(items, "Lay du lieu tu trang sau khi JS render");
+                return CrawlExecutionResult.success(
+                        items,
+                        items.isEmpty()
+                                ? "Playwright da render thanh cong nhung chua bat duoc item"
+                                : "Lay du lieu tu trang sau khi JS render",
+                        items.size(),
+                        items.isEmpty() ? 0 : 1
+                );
             }
         } catch (Exception exception) {
-            return CrawlExecutionResult.empty("Loi Playwright crawl: " + exception.getMessage());
+            return CrawlExecutionResult.failure("Loi Playwright crawl: " + exception.getMessage());
         }
-    }
-
-    @Override
-    public CrawlExecutionResult crawl(CrawlRequest url) {
-        return null;
     }
 
     /**

@@ -10,6 +10,7 @@ import org.jsoup.nodes.Document;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
+import java.io.InterruptedIOException;
 import java.io.IOException;
 import java.util.List;
 
@@ -49,14 +50,9 @@ public class HtmlCrawlerStrategy implements CrawlerStrategy {
         return true;
     }
 
-    /**
-     * Crawl HTML thuần bằng Jsoup và parse thành data.
-     *
-     * @param url URL cần crawl
-     * @return kết quả crawl bằng HTML
-     */
     @Override
-    public CrawlExecutionResult crawl(String url) {
+    public CrawlExecutionResult crawl(CrawlRequest request) {
+        String url = request.pageUrl();
         Connection connection = Jsoup.connect(url)
                 .userAgent("Mozilla/5.0")
                 .timeout(15_000)
@@ -68,18 +64,21 @@ public class HtmlCrawlerStrategy implements CrawlerStrategy {
                     .stream()
                     .<JsonNode>map(item -> objectMapper.valueToTree(item))
                     .toList();
-            if (items.isEmpty()) {
-                return CrawlExecutionResult.empty("HTML thuan khong co item, co the trang dung JS render");
-            }
 
-            return new CrawlExecutionResult(items, "Lay du lieu tu HTML server response");
+            return CrawlExecutionResult.success(
+                    items,
+                    items.isEmpty()
+                            ? "HTML da tai thanh cong nhung khong co item, co the trang dung JS render"
+                            : "Lay du lieu tu HTML server response",
+                    items.size(),
+                    items.isEmpty() ? 0 : 1
+            );
+        } catch (InterruptedIOException exception) {
+            return CrawlExecutionResult.failure("Crawl timeout, vui long thu lai voi pageSize nho hon");
         } catch (IOException exception) {
-            return CrawlExecutionResult.empty("Loi HTML crawl: " + exception.getMessage());
+            return CrawlExecutionResult.failure("Loi HTML crawl: " + exception.getMessage());
+        } catch (Exception exception) {
+            return CrawlExecutionResult.failure("Loi HTML crawl: " + exception.getMessage());
         }
-    }
-
-    @Override
-    public CrawlExecutionResult crawl(CrawlRequest url) {
-        return null;
     }
 }

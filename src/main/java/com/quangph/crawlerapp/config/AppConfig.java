@@ -5,8 +5,10 @@ import okhttp3.OkHttpClient;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.time.Duration;
+import java.util.concurrent.Executor;
 
 /**
  * Lớp chứa các bean cấu hình dùng chung cho hệ thống crawl.
@@ -27,6 +29,7 @@ public class AppConfig {
                 .connectTimeout(Duration.ofMillis(crawlerProperties.getHttp().getConnectTimeoutMs()))
                 .readTimeout(Duration.ofMillis(crawlerProperties.getHttp().getReadTimeoutMs()))
                 .writeTimeout(Duration.ofMillis(crawlerProperties.getHttp().getWriteTimeoutMs()))
+                .callTimeout(Duration.ofMillis(crawlerProperties.getHttp().getCallTimeoutMs()))
                 .followRedirects(true)
                 .followSslRedirects(true)
                 .build();
@@ -40,5 +43,16 @@ public class AppConfig {
     @Bean
     public ObjectMapper objectMapper() {
         return new ObjectMapper().findAndRegisterModules();
+    }
+
+    @Bean(name = "crawlTaskExecutor")
+    public Executor crawlTaskExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setThreadNamePrefix("crawl-export-");
+        executor.setCorePoolSize(2);
+        executor.setMaxPoolSize(4);
+        executor.setQueueCapacity(20);
+        executor.initialize();
+        return executor;
     }
 }

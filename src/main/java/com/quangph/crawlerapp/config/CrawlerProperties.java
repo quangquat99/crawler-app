@@ -100,6 +100,7 @@ public class CrawlerProperties {
         private int connectTimeoutMs = 10_000;
         private int readTimeoutMs = 15_000;
         private int writeTimeoutMs = 15_000;
+        private int callTimeoutMs = 20_000;
         private int maxBodyLogLength = 1_200;
 
         /**
@@ -154,6 +155,24 @@ public class CrawlerProperties {
          */
         public void setWriteTimeoutMs(int writeTimeoutMs) {
             this.writeTimeoutMs = writeTimeoutMs;
+        }
+
+        /**
+         * Lấy timeout tổng cho toàn bộ HTTP call.
+         *
+         * @return số mili giây timeout tổng
+         */
+        public int getCallTimeoutMs() {
+            return callTimeoutMs;
+        }
+
+        /**
+         * Gán timeout tổng cho toàn bộ HTTP call.
+         *
+         * @param callTimeoutMs số mili giây timeout tổng
+         */
+        public void setCallTimeoutMs(int callTimeoutMs) {
+            this.callTimeoutMs = callTimeoutMs;
         }
 
         /**
