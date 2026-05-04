@@ -742,7 +742,11 @@
             return window.location.origin;
         }
 
-        return protocol + "//" + hostname + ":" + SERVER_PORT;
+        if (hostname === "localhost") {
+            return protocol + "//" + hostname + ":" + SERVER_PORT;
+        } else {
+            return protocol + "//" + hostname;
+        }
     }
 </script>
 </body>
