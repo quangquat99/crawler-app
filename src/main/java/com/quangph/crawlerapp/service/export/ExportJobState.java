@@ -23,7 +23,7 @@ public class ExportJobState {
         this.createdAt = Instant.now();
         this.updatedAt = this.createdAt;
         this.status = ExportJobStatus.PENDING;
-        this.message = "Export job created";
+        this.message = "Đã tạo tác vụ xuất dữ liệu.";
     }
 
     public synchronized String getJobId() {

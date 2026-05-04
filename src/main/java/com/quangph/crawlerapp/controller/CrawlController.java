@@ -1,6 +1,7 @@
 package com.quangph.crawlerapp.controller;
 
 import com.quangph.crawlerapp.dto.request.CrawlRequest;
+import com.quangph.crawlerapp.dto.request.ExportSelectedPagesRequest;
 import com.quangph.crawlerapp.dto.response.CrawlResponse;
 import com.quangph.crawlerapp.dto.response.ExportJobStartResponse;
 import com.quangph.crawlerapp.service.ExportAllJobService;
@@ -68,12 +69,19 @@ public class CrawlController {
         return ResponseEntity.ok(exportAllJobService.createJob(request));
     }
 
+    @PostMapping("/export-selected-pages")
+    public ResponseEntity<ExportJobStartResponse> exportSelectedPages(
+            @Valid @RequestBody ExportSelectedPagesRequest request
+    ) {
+        return ResponseEntity.ok(exportAllJobService.createSelectedPagesJob(request));
+    }
+
     @GetMapping("/export-jobs/{jobId}")
     public ResponseEntity<?> getExportJobStatus(@PathVariable String jobId) {
         return exportAllJobService.getJobStatus(jobId)
                 .<ResponseEntity<?>>map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
-                        "message", "Export job not found"
+                        "message", "Không tìm thấy tác vụ xuất dữ liệu."
                 )));
     }
 
@@ -82,13 +90,13 @@ public class CrawlController {
         ExportJobState jobState = exportAllJobService.getJob(jobId).orElse(null);
         if (jobState == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
-                    "message", "Export job not found"
+                    "message", "Không tìm thấy tác vụ xuất dữ liệu."
             ));
         }
 
         if (!exportAllJobService.isDownloadable(jobState)) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of(
-                    "message", "Export job is not ready for download"
+                    "message", "Tác vụ xuất dữ liệu chưa sẵn sàng để tải file."
             ));
         }
 

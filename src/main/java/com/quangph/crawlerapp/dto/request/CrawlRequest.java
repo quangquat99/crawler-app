@@ -10,22 +10,26 @@ import org.hibernate.validator.constraints.URL;
  */
 public record CrawlRequest(
 
-        @NotBlank(message = "url khong duoc de trong")
-        @URL(message = "url khong hop le")
+        @NotBlank(message = "URL không được để trống")
+        @URL(message = "URL không hợp lệ")
         String pageUrl,
 
-        @NotNull(message = "page khong duoc de trong")
-        @Min(value = 1, message = "page phai >= 1")
+        @NotNull(message = "Trang không được để trống")
+        @Min(value = 1, message = "Trang phải lớn hơn hoặc bằng 1")
         Integer page,
 
-        @NotNull(message = "pageSize khong duoc de trong")
-        @Min(value = 1, message = "pageSize phai >= 1")
+        @Min(value = 1, message = "Kích thước trang phải lớn hơn hoặc bằng 1")
         Integer pageSize,
 
-        @NotNull(message = "countryId khong duoc de trong")
-        @Min(value = 1, message = "countryId phai >= 1")
+        @NotNull(message = "Quốc gia không được để trống")
+        @Min(value = 1, message = "Quốc gia phải lớn hơn hoặc bằng 1")
         Integer countryId,
 
         String token
 ) {
+    public static final int FIXED_PAGE_SIZE = 20;
+
+    public CrawlRequest {
+        pageSize = pageSize == null ? FIXED_PAGE_SIZE : pageSize;
+    }
 }

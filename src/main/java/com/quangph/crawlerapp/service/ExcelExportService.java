@@ -24,7 +24,7 @@ public class ExcelExportService {
             writeWorkbook(workbook, out);
             return out.toByteArray();
         } catch (IOException e) {
-            throw new RuntimeException("Export Excel failed", e);
+            throw new RuntimeException("Xuất file Excel thất bại.", e);
         } finally {
             workbook.dispose();
             try {

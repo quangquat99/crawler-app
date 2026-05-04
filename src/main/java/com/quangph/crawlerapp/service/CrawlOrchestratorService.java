@@ -24,7 +24,7 @@ import java.util.Set;
 public class CrawlOrchestratorService {
 
     private static final Logger log = LoggerFactory.getLogger(CrawlOrchestratorService.class);
-    private static final Set<Integer> SUPPORTED_PAGE_SIZES = Set.of(10, 20, 50);
+    private static final Set<Integer> SUPPORTED_PAGE_SIZES = Set.of(CrawlRequest.FIXED_PAGE_SIZE);
 
     private final List<CrawlerStrategy> crawlerStrategies;
     private final ExcelExportService excelExportService;
@@ -47,7 +47,7 @@ public class CrawlOrchestratorService {
 
         Instant startedAt = Instant.now();
         String requestedUrl = request.pageUrl();
-        String lastMessage = "Khong crawl duoc du lieu tu URL nay";
+        String lastMessage = "Không crawl được dữ liệu từ URL này.";
         Set<String> attemptedStrategies = new LinkedHashSet<>();
 
         for (CrawlerStrategy crawlerStrategy : crawlerStrategies) {
@@ -175,7 +175,7 @@ public class CrawlOrchestratorService {
                     false,
                     request.pageUrl(),
                     "NONE",
-                    "pageSize chi duoc phep la 10, 20 hoac 50",
+                    "Kích thước trang chỉ được phép là 20.",
                     request.page(),
                     request.pageSize(),
                     0,

@@ -68,17 +68,17 @@ public class HtmlCrawlerStrategy implements CrawlerStrategy {
             return CrawlExecutionResult.success(
                     items,
                     items.isEmpty()
-                            ? "HTML da tai thanh cong nhung khong co item, co the trang dung JS render"
-                            : "Lay du lieu tu HTML server response",
+                            ? "HTML đã tải thành công nhưng không có dữ liệu, có thể trang dùng JavaScript để render."
+                            : "Đã lấy dữ liệu từ HTML trả về từ máy chủ.",
                     items.size(),
                     items.isEmpty() ? 0 : 1
             );
         } catch (InterruptedIOException exception) {
-            return CrawlExecutionResult.failure("Crawl timeout, vui long thu lai voi pageSize nho hon");
+            return CrawlExecutionResult.failure("Crawl bị timeout, vui lòng thử lại sau.");
         } catch (IOException exception) {
-            return CrawlExecutionResult.failure("Loi HTML crawl: " + exception.getMessage());
+            return CrawlExecutionResult.failure("Crawl HTML thất bại: " + exception.getMessage());
         } catch (Exception exception) {
-            return CrawlExecutionResult.failure("Loi HTML crawl: " + exception.getMessage());
+            return CrawlExecutionResult.failure("Crawl HTML thất bại: " + exception.getMessage());
         }
     }
 }

@@ -29,7 +29,7 @@ public class GlobalExceptionHandler {
                 .stream()
                 .findFirst()
                 .map(error -> error.getDefaultMessage())
-                .orElse("Request khong hop le");
+                .orElse("Yêu cầu không hợp lệ.");
 
         return ResponseEntity.badRequest().body(buildErrorResponse(message));
     }
@@ -56,9 +56,9 @@ public class GlobalExceptionHandler {
                 false,
                 null,
                 null,
-                message == null || message.isBlank() ? "Unexpected server error" : message,
+                message == null || message.isBlank() ? "Đã xảy ra lỗi máy chủ không mong muốn." : message,
                 1,
-                10,
+                20,
                 0,
                 0,
                 Instant.now(),

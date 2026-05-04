@@ -1,6 +1,7 @@
 package com.quangph.crawlerapp.service;
 
 import com.quangph.crawlerapp.dto.request.CrawlRequest;
+import com.quangph.crawlerapp.dto.request.ExportSelectedPagesRequest;
 import com.quangph.crawlerapp.dto.response.ExportJobStartResponse;
 import com.quangph.crawlerapp.dto.response.ExportJobStatusResponse;
 import com.quangph.crawlerapp.service.export.ExportAllJobWorker;
@@ -28,8 +29,15 @@ public class ExportAllJobService {
     public ExportJobStartResponse createJob(CrawlRequest request) {
         String jobId = UUID.randomUUID().toString();
         exportJobRegistry.create(jobId);
-        exportAllJobWorker.process(jobId, request);
-        return new ExportJobStartResponse(jobId, ExportJobStatus.PENDING.name(), "Export job created");
+        exportAllJobWorker.processAllPages(jobId, request);
+        return new ExportJobStartResponse(jobId, ExportJobStatus.PENDING.name(), "Đã tạo tác vụ xuất tất cả các trang.");
+    }
+
+    public ExportJobStartResponse createSelectedPagesJob(ExportSelectedPagesRequest request) {
+        String jobId = UUID.randomUUID().toString();
+        exportJobRegistry.create(jobId);
+        exportAllJobWorker.processSelectedPages(jobId, request);
+        return new ExportJobStartResponse(jobId, ExportJobStatus.PENDING.name(), "Đã tạo tác vụ xuất các trang đã chọn.");
     }
 
     public Optional<ExportJobStatusResponse> getJobStatus(String jobId) {

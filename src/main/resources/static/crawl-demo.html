@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crawler Demo</title>
+    <title>Demo Crawler</title>
     <link
             rel="stylesheet"
             href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
@@ -13,7 +13,7 @@
     <style>
         body {
             background: #f3f6fb;
-            color: #18212f;
+            color: #17212f;
         }
 
         .page-shell {
@@ -34,15 +34,15 @@
 
         .hero-copy {
             margin: 0;
-            max-width: 780px;
-            color: #617189;
+            max-width: 820px;
+            color: #64748b;
             line-height: 1.6;
         }
 
         .app-card {
             border: 1px solid #dbe3ef;
             border-radius: 8px;
-            box-shadow: 0 16px 38px rgba(15, 23, 42, 0.08);
+            box-shadow: 0 16px 36px rgba(15, 23, 42, 0.08);
         }
 
         .card-title {
@@ -53,15 +53,14 @@
 
         .card-subtitle {
             margin: 0;
-            color: #617189;
-            font-size: 0.95rem;
+            color: #64748b;
             line-height: 1.5;
         }
 
         .section-label {
             display: block;
             margin-bottom: 8px;
-            color: #42526b;
+            color: #475569;
             font-size: 0.78rem;
             font-weight: 700;
             letter-spacing: 0.04em;
@@ -71,7 +70,13 @@
         .form-control,
         .form-select {
             min-height: 46px;
-            border-color: #cfd9e7;
+            border-color: #d0dae8;
+        }
+
+        .field-hint {
+            margin-top: 8px;
+            color: #64748b;
+            font-size: 0.9rem;
         }
 
         .action-row {
@@ -85,7 +90,7 @@
             display: none;
             align-items: center;
             gap: 10px;
-            color: #617189;
+            color: #64748b;
             font-size: 0.95rem;
         }
 
@@ -106,7 +111,7 @@
         .meta-label {
             display: block;
             margin-bottom: 6px;
-            color: #617189;
+            color: #64748b;
             font-size: 0.76rem;
             font-weight: 700;
             text-transform: uppercase;
@@ -135,7 +140,7 @@
             position: sticky;
             top: 0;
             z-index: 1;
-            background: #f7faff;
+            background: #f8fbff;
             font-size: 0.8rem;
             text-transform: uppercase;
             white-space: nowrap;
@@ -163,13 +168,19 @@
             color: #94a3b8;
         }
 
+        .empty-state {
+            padding: 36px 20px;
+            text-align: center;
+            color: #64748b;
+        }
+
         .pagination-shell {
             display: none;
             margin-top: 18px;
         }
 
         .pagination-summary {
-            color: #617189;
+            color: #64748b;
             font-size: 0.95rem;
         }
 
@@ -178,7 +189,14 @@
             text-align: center;
         }
 
-        .export-job-card {
+        .pagination .page-item.loading .page-link {
+            background: #e8f0ff;
+            border-color: #9bb8ff;
+            color: #0d6efd;
+            font-weight: 700;
+        }
+
+        .export-section {
             display: none;
             margin-top: 18px;
             padding: 16px;
@@ -187,38 +205,41 @@
             background: #f8fbff;
         }
 
-        .export-job-meta {
+        .job-card {
+            display: none;
+            margin-top: 18px;
+            padding: 16px;
+            border: 1px solid #dbe3ef;
+            border-radius: 8px;
+            background: #f8fbff;
+        }
+
+        .job-meta {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 10px;
             margin-top: 12px;
-            color: #445469;
+            color: #475569;
             font-size: 0.95rem;
-        }
-
-        .empty-state {
-            padding: 36px 20px;
-            text-align: center;
-            color: #617189;
         }
     </style>
 </head>
 <body>
 <div class="page-shell">
     <section class="hero">
-        <h1 class="hero-title">Crawler Demo</h1>
+        <h1 class="hero-title">Demo Crawler</h1>
         <p class="hero-copy">
-            Demo crawl company data qua Spring Boot với crawl current page, export current page, export all.
+            Giao diện demo cho chức năng crawl dữ liệu, xuất trang hiện tại, xuất tất cả các trang và xuất theo danh sách trang đã chọn bằng tác vụ bất đồng bộ.
         </p>
     </section>
 
     <section class="card app-card mb-4">
         <div class="card-body p-4">
-            <h2 class="card-title">Crawl Request</h2>
-            <p class="card-subtitle">Chọn nguồn dữ liệu, page size và country. Pagination sẽ điều khiển page hiện tại tự động.</p>
+            <h2 class="card-title">Thông tin crawl</h2>
+            <p class="card-subtitle">Kích thước trang đã được cố định là 20. Người dùng chỉ cần chọn URL nguồn và quốc gia.</p>
 
             <div class="row g-3 mt-1">
-                <div class="col-lg-5">
+                <div class="col-lg-6">
                     <label class="section-label" for="pageUrl">Page URL</label>
                     <input
                             id="pageUrl"
@@ -234,32 +255,25 @@
                             id="token"
                             type="text"
                             class="form-control"
-                            placeholder="Optional token"
+                            placeholder="Token nếu có"
                     >
                 </div>
-                <div class="col-lg-2 col-md-6">
-                    <label class="section-label" for="pageSize">Page Size</label>
-                    <select id="pageSize" class="form-select">
-                        <option value="10">10</option>
-                        <option value="20" selected>20</option>
-                        <option value="50">50</option>
-                    </select>
-                </div>
-                <div class="col-lg-2 col-md-6">
-                    <label class="section-label" for="country">Country</label>
+                <div class="col-lg-3">
+                    <label class="section-label" for="country">Quốc gia</label>
                     <select id="country" class="form-select">
                         <option value="1">China</option>
                         <option value="100">Taiwan</option>
                         <option value="75">Hong Kong</option>
                     </select>
+                    <div class="field-hint">Kích thước trang cố định: 20</div>
                 </div>
             </div>
 
             <div class="action-row mt-4">
-                <button id="crawlButton" type="button" class="btn btn-primary px-4">Crawl Data</button>
-                <button id="downloadCurrentButton" type="button" class="btn btn-outline-success" style="display: none;">Download Current Page</button>
-                <button id="exportAllButton" type="button" class="btn btn-outline-primary">Export All</button>
-                <button id="downloadAllButton" type="button" class="btn btn-success" style="display: none;">Download Export All</button>
+                <button id="crawlButton" type="button" class="btn btn-primary px-4">Crawl dữ liệu</button>
+                <button id="downloadCurrentButton" type="button" class="btn btn-outline-success" style="display: none;">Tải trang hiện tại</button>
+                <button id="exportAllButton" type="button" class="btn btn-outline-primary">Xuất tất cả các trang</button>
+                <button id="downloadJobButton" type="button" class="btn btn-success" style="display: none;">Tải file Excel</button>
                 <div id="loadingState" class="status-inline">
                     <div class="spinner-border spinner-border-sm text-primary" role="status" aria-hidden="true"></div>
                     <span>Đang xử lý yêu cầu...</span>
@@ -268,18 +282,37 @@
 
             <div id="feedbackBox" class="alert mt-3 d-none" role="alert"></div>
 
-            <div id="exportJobCard" class="export-job-card">
+            <div id="selectedPagesSection" class="export-section">
+                <h3 class="card-title mb-1">Xuất theo trang đã chọn</h3>
+                <p class="card-subtitle">Nhập danh sách trang cần xuất, ví dụ: 1,2,5-8</p>
+                <div class="row g-3 mt-1">
+                    <div class="col-lg-8">
+                        <label class="section-label" for="selectedPagesInput">Danh sách trang</label>
+                        <input
+                                id="selectedPagesInput"
+                                type="text"
+                                class="form-control"
+                                placeholder="Ví dụ: 1,2,5-8"
+                        >
+                    </div>
+                    <div class="col-lg-4 d-flex align-items-end">
+                        <button id="exportSelectedButton" type="button" class="btn btn-outline-secondary w-100">Xuất trang đã chọn</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="jobCard" class="job-card">
                 <div class="d-flex flex-wrap justify-content-between gap-3 align-items-start">
                     <div>
-                        <h3 class="card-title mb-1">Export All Job</h3>
-                        <p id="exportJobMessage" class="card-subtitle mb-0">Đang chờ khởi tạo job.</p>
+                        <h3 id="jobTitle" class="card-title mb-1">Tiến độ xuất dữ liệu</h3>
+                        <p id="jobMessage" class="card-subtitle mb-0">Đang chờ khởi tạo tác vụ.</p>
                     </div>
-                    <div class="text-muted small" id="exportJobStatusBadge">PENDING</div>
+                    <div class="text-muted small" id="jobStatusBadge">PENDING</div>
                 </div>
 
                 <div class="progress mt-3" style="height: 12px;">
                     <div
-                            id="exportProgressBar"
+                            id="jobProgressBar"
                             class="progress-bar progress-bar-striped progress-bar-animated"
                             role="progressbar"
                             style="width: 0%;"
@@ -289,11 +322,11 @@
                     ></div>
                 </div>
 
-                <div class="export-job-meta">
-                    <div><strong>Job ID:</strong> <span id="exportJobId">-</span></div>
-                    <div><strong>Page:</strong> <span id="exportJobPage">0/0</span></div>
-                    <div><strong>Items:</strong> <span id="exportJobItems">0/0</span></div>
-                    <div><strong>Progress:</strong> <span id="exportJobProgressText">0%</span></div>
+                <div class="job-meta">
+                    <div><strong>Mã tác vụ:</strong> <span id="jobId">-</span></div>
+                    <div><strong>Trang:</strong> <span id="jobPage">0/0</span></div>
+                    <div><strong>Số dòng đã xử lý:</strong> <span id="jobItems">0/0</span></div>
+                    <div><strong>Tiến độ:</strong> <span id="jobProgressText">0%</span></div>
                 </div>
             </div>
         </div>
@@ -301,43 +334,47 @@
 
     <section class="card app-card">
         <div class="card-body p-4 border-bottom">
-            <h2 class="card-title">Crawl Result</h2>
-            <p class="card-subtitle mb-0">Kết quả crawl current page cùng metadata và điều hướng phân trang.</p>
+            <h2 class="card-title">Kết quả crawl</h2>
+            <p class="card-subtitle mb-0">Kết quả dữ liệu của trang hiện tại cùng thông tin phân trang.</p>
 
             <div id="resultMeta" class="result-meta">
                 <div class="meta-tile">
-                    <span class="meta-label">Strategy</span>
+                    <span class="meta-label">URL yêu cầu</span>
+                    <span id="metaRequestedUrl" class="meta-value">-</span>
+                </div>
+                <div class="meta-tile">
+                    <span class="meta-label">Chiến lược</span>
                     <span id="metaStrategy" class="meta-value">-</span>
                 </div>
                 <div class="meta-tile">
-                    <span class="meta-label">Current Page</span>
+                    <span class="meta-label">Trang hiện tại</span>
                     <span id="metaPage" class="meta-value">-</span>
                 </div>
                 <div class="meta-tile">
-                    <span class="meta-label">Page Size</span>
-                    <span id="metaPageSize" class="meta-value">-</span>
+                    <span class="meta-label">Kích thước trang</span>
+                    <span id="metaPageSize" class="meta-value">20</span>
                 </div>
                 <div class="meta-tile">
-                    <span class="meta-label">Total Items</span>
+                    <span class="meta-label">Tổng số bản ghi</span>
                     <span id="metaTotalItems" class="meta-value">-</span>
                 </div>
                 <div class="meta-tile">
-                    <span class="meta-label">Total Pages</span>
+                    <span class="meta-label">Tổng số trang</span>
                     <span id="metaTotalPages" class="meta-value">-</span>
                 </div>
                 <div class="meta-tile">
-                    <span class="meta-label">Crawled At</span>
+                    <span class="meta-label">Thời điểm crawl</span>
                     <span id="metaCrawledAt" class="meta-value">-</span>
                 </div>
                 <div class="meta-tile">
-                    <span class="meta-label">Message</span>
+                    <span class="meta-label">Thông báo</span>
                     <span id="metaMessage" class="meta-value">-</span>
                 </div>
             </div>
         </div>
 
         <div class="card-body p-4">
-            <div id="emptyState" class="empty-state">Chưa có dữ liệu. Thực hiện crawl để xem kết quả tại đây.</div>
+            <div id="emptyState" class="empty-state">Chưa có dữ liệu. Hãy thực hiện crawl để xem kết quả.</div>
 
             <div id="tableShell" class="table-shell">
                 <table class="table table-hover table-bordered align-middle">
@@ -362,7 +399,7 @@
 
             <div id="paginationShell" class="pagination-shell">
                 <div id="paginationSummary" class="pagination-summary mb-3"></div>
-                <nav aria-label="Pagination">
+                <nav aria-label="Phân trang">
                     <ul id="paginationList" class="pagination mb-0 flex-wrap"></ul>
                 </nav>
             </div>
@@ -372,49 +409,56 @@
 
 <script>
     const SERVER_PORT = "2412";
+    const FIXED_PAGE_SIZE = 20;
     const API_BASE = resolveApiBase();
     const API_ENDPOINTS = {
         crawl: API_BASE + "/api/v1/crawls",
         exportCurrent: API_BASE + "/api/v1/crawls/export",
         exportAll: API_BASE + "/api/v1/crawls/export-all",
+        exportSelected: API_BASE + "/api/v1/crawls/export-selected-pages",
         exportJobBase: API_BASE + "/api/v1/crawls/export-jobs"
     };
 
     const state = {
         isLoading: false,
-        isExportJobRunning: false,
+        isJobRunning: false,
         pollingTimerId: null,
+        pendingPage: null,
         currentFilters: {
             pageUrl: "https://www.jctrans.com/en/company/",
             token: "",
             page: 1,
-            pageSize: 20,
+            pageSize: FIXED_PAGE_SIZE,
             countryId: 1
         },
         lastCrawlResponse: null,
-        exportJob: null
+        currentJob: null
     };
 
     const elements = {
         pageUrl: document.getElementById("pageUrl"),
         token: document.getElementById("token"),
-        pageSize: document.getElementById("pageSize"),
         country: document.getElementById("country"),
         crawlButton: document.getElementById("crawlButton"),
         downloadCurrentButton: document.getElementById("downloadCurrentButton"),
         exportAllButton: document.getElementById("exportAllButton"),
-        downloadAllButton: document.getElementById("downloadAllButton"),
+        downloadJobButton: document.getElementById("downloadJobButton"),
         loadingState: document.getElementById("loadingState"),
         feedbackBox: document.getElementById("feedbackBox"),
-        exportJobCard: document.getElementById("exportJobCard"),
-        exportJobMessage: document.getElementById("exportJobMessage"),
-        exportJobStatusBadge: document.getElementById("exportJobStatusBadge"),
-        exportProgressBar: document.getElementById("exportProgressBar"),
-        exportJobId: document.getElementById("exportJobId"),
-        exportJobPage: document.getElementById("exportJobPage"),
-        exportJobItems: document.getElementById("exportJobItems"),
-        exportJobProgressText: document.getElementById("exportJobProgressText"),
+        selectedPagesSection: document.getElementById("selectedPagesSection"),
+        selectedPagesInput: document.getElementById("selectedPagesInput"),
+        exportSelectedButton: document.getElementById("exportSelectedButton"),
+        jobCard: document.getElementById("jobCard"),
+        jobTitle: document.getElementById("jobTitle"),
+        jobMessage: document.getElementById("jobMessage"),
+        jobStatusBadge: document.getElementById("jobStatusBadge"),
+        jobProgressBar: document.getElementById("jobProgressBar"),
+        jobId: document.getElementById("jobId"),
+        jobPage: document.getElementById("jobPage"),
+        jobItems: document.getElementById("jobItems"),
+        jobProgressText: document.getElementById("jobProgressText"),
         resultMeta: document.getElementById("resultMeta"),
+        metaRequestedUrl: document.getElementById("metaRequestedUrl"),
         metaStrategy: document.getElementById("metaStrategy"),
         metaPage: document.getElementById("metaPage"),
         metaPageSize: document.getElementById("metaPageSize"),
@@ -436,14 +480,10 @@
         elements.crawlButton.addEventListener("click", function () {
             startCrawl(true);
         });
-
-        // elements.pageSize.addEventListener("change", function () {
-        //     startCrawl(true);
-        // });
-
         elements.downloadCurrentButton.addEventListener("click", handleDownloadCurrentPage);
         elements.exportAllButton.addEventListener("click", handleExportAll);
-        elements.downloadAllButton.addEventListener("click", handleDownloadExportAll);
+        elements.exportSelectedButton.addEventListener("click", handleExportSelectedPages);
+        elements.downloadJobButton.addEventListener("click", handleDownloadJobFile);
     }
 
     function startCrawl(resetPage) {
@@ -451,21 +491,20 @@
             syncFiltersFromForm(resetPage);
             fetchCrawlData();
         } catch (error) {
-            showFeedback("danger", error.message || "Invalid form data.");
+            showFeedback("danger", error.message || "Dữ liệu nhập không hợp lệ.");
         }
     }
 
     function syncFiltersFromForm(resetPage) {
         const pageUrl = elements.pageUrl.value.trim();
         const token = elements.token.value.trim();
-        const pageSize = parseInteger(elements.pageSize.value, "pageSize");
-        const countryId = parseInteger(elements.country.value, "country");
+        const countryId = parseInteger(elements.country.value, "quốc gia");
 
         validateUrl(pageUrl);
 
         state.currentFilters.pageUrl = pageUrl;
         state.currentFilters.token = token;
-        state.currentFilters.pageSize = pageSize;
+        state.currentFilters.pageSize = FIXED_PAGE_SIZE;
         state.currentFilters.countryId = countryId;
         if (resetPage) {
             state.currentFilters.page = 1;
@@ -479,7 +518,7 @@
 
         try {
             clearFeedback();
-            setLoadingState(true, "Đang crawl dữ liệu...");
+            setLoadingState(true, state.pendingPage ? "Đang tải dữ liệu trang " + state.pendingPage + "..." : "Đang crawl dữ liệu...");
 
             const response = await postJson(API_ENDPOINTS.crawl, buildCrawlPayload(state.currentFilters.page));
             state.lastCrawlResponse = response;
@@ -487,17 +526,18 @@
 
             if (response.success) {
                 toggleCurrentDownload(true);
-                showFeedback("success", response.message || "Crawl completed successfully.");
+                showFeedback("success", response.message || "Đã crawl dữ liệu thành công.");
             } else {
                 toggleCurrentDownload(false);
-                showFeedback("danger", response.message || "Crawl failed.");
+                showFeedback("danger", response.message || "Crawl dữ liệu thất bại.");
             }
         } catch (error) {
             state.lastCrawlResponse = null;
             toggleCurrentDownload(false);
             resetResultsView();
-            showFeedback("danger", error.message || "Crawl failed.");
+            showFeedback("danger", error.message || "Crawl dữ liệu thất bại.");
         } finally {
+            state.pendingPage = null;
             setLoadingState(false);
         }
     }
@@ -509,7 +549,7 @@
 
         try {
             clearFeedback();
-            setLoadingState(true, "Đang tạo file Excel...");
+            setLoadingState(true, "Đang tạo file Excel cho trang hiện tại...");
 
             const response = await fetch(API_ENDPOINTS.exportCurrent, {
                 method: "POST",
@@ -525,63 +565,101 @@
 
             const blob = await response.blob();
             triggerFileDownload(blob, resolveDownloadFileName(response.headers.get("Content-Disposition"), "crawl-result.xlsx"));
-            showFeedback("success", "Downloaded current page Excel successfully.");
+            showFeedback("success", "Đã tải file Excel của trang hiện tại.");
         } catch (error) {
-            showFeedback("danger", error.message || "Download failed.");
+            showFeedback("danger", error.message || "Tải file Excel thất bại.");
         } finally {
             setLoadingState(false);
         }
     }
 
     async function handleExportAll() {
-        if (state.isLoading || state.isExportJobRunning) {
+        if (state.isLoading || state.isJobRunning) {
             return;
         }
 
         try {
             clearFeedback();
             syncFiltersFromForm(false);
-            setLoadingState(true, "Đang tạo export job...");
-            resetExportJobUi();
+            setLoadingState(true, "Đang tạo tác vụ xuất tất cả các trang...");
+            resetJobUi();
 
             const response = await postJson(API_ENDPOINTS.exportAll, buildCrawlPayload(1));
-            state.exportJob = {
-                jobId: response.jobId,
-                downloadUrl: null
-            };
-
-            renderExportJobCard({
-                jobId: response.jobId,
-                status: response.status || "PENDING",
-                currentPage: 0,
-                totalPages: 0,
-                processedItems: 0,
-                totalItems: 0,
-                progressPercent: 0,
-                message: response.message || "Export job created"
-            });
-
-            startPollingExportJob(response.jobId);
-            showFeedback("success", response.message || "Export job created.");
+            prepareJobPolling(response.jobId, "Tiến độ xuất tất cả các trang", response.message || "Đã tạo tác vụ xuất tất cả các trang.");
+            showFeedback("success", response.message || "Đã tạo tác vụ xuất tất cả các trang.");
         } catch (error) {
-            showFeedback("danger", error.message || "Cannot start export job.");
+            showFeedback("danger", error.message || "Không thể tạo tác vụ xuất tất cả các trang.");
         } finally {
             setLoadingState(false);
         }
     }
 
-    function startPollingExportJob(jobId) {
-        clearPolling();
-        state.isExportJobRunning = true;
-        updateActionStates();
+    async function handleExportSelectedPages() {
+        if (state.isLoading || state.isJobRunning) {
+            return;
+        }
 
-        pollExportJob(jobId);
+        try {
+            clearFeedback();
+            syncFiltersFromForm(false);
+
+            if (!state.lastCrawlResponse || !state.lastCrawlResponse.success || !state.lastCrawlResponse.totalPages) {
+                throw new Error("Bạn cần crawl dữ liệu thành công trước khi xuất theo trang đã chọn.");
+            }
+
+            const pages = parseSelectedPages(elements.selectedPagesInput.value.trim(), Number(state.lastCrawlResponse.totalPages));
+            setLoadingState(true, "Đang tạo tác vụ xuất các trang đã chọn...");
+            resetJobUi();
+
+            const response = await postJson(API_ENDPOINTS.exportSelected, {
+                pageUrl: state.currentFilters.pageUrl,
+                pageSize: FIXED_PAGE_SIZE,
+                countryId: state.currentFilters.countryId,
+                token: state.currentFilters.token || null,
+                pages: pages
+            });
+
+            prepareJobPolling(response.jobId, "Tiến độ xuất các trang đã chọn", response.message || "Đã tạo tác vụ xuất các trang đã chọn.");
+            showFeedback("success", response.message || "Đã tạo tác vụ xuất các trang đã chọn.");
+        } catch (error) {
+            showFeedback("danger", error.message || "Không thể tạo tác vụ xuất các trang đã chọn.");
+        } finally {
+            setLoadingState(false);
+        }
+    }
+
+    function prepareJobPolling(jobId, title, message) {
+        state.currentJob = {
+            jobId: jobId,
+            status: "PENDING",
+            title: title
+        };
+
+        renderJobCard({
+            jobId: jobId,
+            status: "PENDING",
+            currentPage: 0,
+            totalPages: 0,
+            processedItems: 0,
+            totalItems: 0,
+            progressPercent: 0,
+            message: message
+        }, title);
+
+        startPollingJob(jobId, title);
+    }
+
+    function startPollingJob(jobId, title) {
+        clearPolling();
+        state.isJobRunning = true;
+        updateActionStates();
+        pollJobStatus(jobId, title);
         state.pollingTimerId = window.setInterval(function () {
-            pollExportJob(jobId);
+            pollJobStatus(jobId, title);
         }, 2000);
     }
 
-    async function pollExportJob(jobId) {
+    async function pollJobStatus(jobId, title) {
         try {
             const response = await fetch(API_ENDPOINTS.exportJobBase + "/" + encodeURIComponent(jobId));
             if (!response.ok) {
@@ -589,73 +667,75 @@
             }
 
             const data = await response.json();
-            state.exportJob = data;
-            renderExportJobCard(data);
+            state.currentJob = data;
+            renderJobCard(data, title);
 
             if (data.status === "DONE") {
                 clearPolling();
-                state.isExportJobRunning = false;
-                toggleExportAllDownload(true);
-                showFeedback("success", data.message || "Export all completed.");
+                state.isJobRunning = false;
+                toggleJobDownload(true);
+                showFeedback("success", data.message || "Tác vụ xuất dữ liệu đã hoàn tất.");
             } else if (data.status === "FAILED") {
                 clearPolling();
-                state.isExportJobRunning = false;
-                toggleExportAllDownload(false);
-                showFeedback("danger", data.message || "Export all failed.");
+                state.isJobRunning = false;
+                toggleJobDownload(false);
+                showFeedback("danger", data.message || "Tác vụ xuất dữ liệu thất bại.");
             }
 
             updateActionStates();
         } catch (error) {
             clearPolling();
-            state.isExportJobRunning = false;
-            toggleExportAllDownload(false);
+            state.isJobRunning = false;
+            toggleJobDownload(false);
             updateActionStates();
-            showFeedback("danger", error.message || "Cannot poll export job.");
+            showFeedback("danger", error.message || "Không thể kiểm tra trạng thái tác vụ xuất dữ liệu.");
         }
     }
 
-    async function handleDownloadExportAll() {
-        if (!state.exportJob || !state.exportJob.jobId) {
+    async function handleDownloadJobFile() {
+        if (!state.currentJob || !state.currentJob.jobId) {
             return;
         }
 
         try {
             clearFeedback();
-            const response = await fetch(API_ENDPOINTS.exportJobBase + "/" + encodeURIComponent(state.exportJob.jobId) + "/download");
+            const response = await fetch(API_ENDPOINTS.exportJobBase + "/" + encodeURIComponent(state.currentJob.jobId) + "/download");
             if (!response.ok) {
                 throw new Error(await extractErrorMessage(response));
             }
 
             const blob = await response.blob();
-            triggerFileDownload(blob, resolveDownloadFileName(response.headers.get("Content-Disposition"), "export-all.xlsx"));
-            showFeedback("success", "Downloaded export all file successfully.");
+            triggerFileDownload(blob, resolveDownloadFileName(response.headers.get("Content-Disposition"), "export-job.xlsx"));
+            showFeedback("success", "Đã tải file Excel thành công.");
         } catch (error) {
-            showFeedback("danger", error.message || "Download export all failed.");
+            showFeedback("danger", error.message || "Tải file Excel thất bại.");
         }
     }
 
     function renderCrawlResponse(response) {
         const items = Array.isArray(response.items) ? response.items : [];
         const currentPage = normalizePositiveInteger(response.page, state.currentFilters.page);
-        const pageSize = normalizePositiveInteger(response.pageSize, state.currentFilters.pageSize);
         const totalItems = toNonNegativeNumber(response.totalItems, items.length);
-        const totalPages = normalizeNonNegativeInteger(response.totalPages, totalItems > 0 ? Math.ceil(totalItems / pageSize) : 0);
+        const totalPages = normalizeNonNegativeInteger(
+            response.totalPages,
+            totalItems > 0 ? Math.ceil(totalItems / FIXED_PAGE_SIZE) : 0
+        );
 
         state.currentFilters.page = currentPage;
-        state.currentFilters.pageSize = pageSize;
-        elements.pageSize.value = String(pageSize);
 
+        elements.metaRequestedUrl.textContent = response.requestedUrl || state.currentFilters.pageUrl || "-";
         elements.metaStrategy.textContent = response.strategyUsed || "-";
         elements.metaPage.textContent = String(currentPage);
-        elements.metaPageSize.textContent = String(pageSize);
-        elements.metaTotalItems.textContent = totalItems > 0 ? String(totalItems) : "0";
-        elements.metaTotalPages.textContent = totalPages > 0 ? String(totalPages) : "0";
+        elements.metaPageSize.textContent = String(FIXED_PAGE_SIZE);
+        elements.metaTotalItems.textContent = String(totalItems);
+        elements.metaTotalPages.textContent = String(totalPages);
         elements.metaCrawledAt.textContent = formatDateTime(response.crawledAt);
         elements.metaMessage.textContent = response.message || "-";
         elements.resultMeta.style.display = "grid";
 
         renderTable(items, response.success);
-        renderPagination(currentPage, totalPages, pageSize, totalItems, response.success);
+        renderPagination(currentPage, totalPages, totalItems, response.success);
+        elements.selectedPagesSection.style.display = response.success && totalPages > 0 ? "block" : "none";
     }
 
     function renderTable(items, isSuccess) {
@@ -665,7 +745,7 @@
             elements.tableShell.style.display = "none";
             elements.emptyState.style.display = "block";
             elements.emptyState.textContent = isSuccess
-                ? "Crawl thành công nhưng trang hiện tại không có item."
+                ? "Crawl thành công nhưng trang hiện tại không có dữ liệu."
                 : "Không có dữ liệu để hiển thị.";
             return;
         }
@@ -692,7 +772,7 @@
         elements.tableShell.style.display = "block";
     }
 
-    function renderPagination(currentPage, totalPages, pageSize, totalItems, isSuccess) {
+    function renderPagination(currentPage, totalPages, totalItems, isSuccess) {
         elements.paginationList.innerHTML = "";
 
         if (!isSuccess || totalPages <= 0) {
@@ -701,9 +781,10 @@
         }
 
         elements.paginationShell.style.display = "block";
-        elements.paginationSummary.textContent = "Trang " + currentPage + " | Page size " + pageSize + " | Total items " + totalItems + " | Total pages " + totalPages;
+        elements.paginationSummary.textContent =
+            "Trang " + currentPage + " | Kích thước trang 20 | Tổng số bản ghi " + totalItems + " | Tổng số trang " + totalPages;
 
-        appendPageItem("Previous", currentPage - 1, currentPage <= 1, false);
+        appendPageItem("Trước", currentPage - 1, currentPage <= 1, false);
 
         buildPaginationModel(currentPage, totalPages).forEach(function (entry) {
             if (entry === "...") {
@@ -713,11 +794,10 @@
                 elements.paginationList.appendChild(item);
                 return;
             }
-
             appendPageItem(String(entry), entry, false, entry === currentPage);
         });
 
-        appendPageItem("Next", currentPage + 1, currentPage >= totalPages, false);
+        appendPageItem("Sau", currentPage + 1, currentPage >= totalPages, false);
     }
 
     function buildPaginationModel(currentPage, totalPages) {
@@ -747,13 +827,17 @@
 
     function appendPageItem(label, pageNumber, disabled, active) {
         const item = document.createElement("li");
-        item.className = "page-item" + (disabled ? " disabled" : "") + (active ? " active" : "");
+        const isPendingPage = state.isLoading && state.pendingPage === pageNumber && !active;
+        item.className = "page-item"
+            + (disabled ? " disabled" : "")
+            + (active ? " active" : "")
+            + (isPendingPage ? " loading" : "");
 
         const button = document.createElement("button");
         button.type = "button";
         button.className = "page-link";
-        button.textContent = label;
-        button.disabled = disabled || state.isLoading;
+        button.textContent = isPendingPage ? label + "..." : label;
+        button.disabled = disabled || state.isLoading || state.isJobRunning;
         button.addEventListener("click", function () {
             goToPage(pageNumber);
         });
@@ -763,40 +847,48 @@
     }
 
     function goToPage(pageNumber) {
-        if (state.isLoading || state.isExportJobRunning) {
+        if (state.isLoading || state.isJobRunning) {
             return;
         }
         if (pageNumber < 1 || pageNumber === state.currentFilters.page) {
             return;
         }
+        state.pendingPage = pageNumber;
         state.currentFilters.page = pageNumber;
+        renderPagination(
+            pageNumber,
+            normalizeNonNegativeInteger(state.lastCrawlResponse ? state.lastCrawlResponse.totalPages : 0, 0),
+            toNonNegativeNumber(state.lastCrawlResponse ? state.lastCrawlResponse.totalItems : 0, 0),
+            true
+        );
         fetchCrawlData();
     }
 
-    function renderExportJobCard(job) {
-        elements.exportJobCard.style.display = "block";
-        elements.exportJobId.textContent = job.jobId || "-";
-        elements.exportJobStatusBadge.textContent = job.status || "-";
-        elements.exportJobMessage.textContent = job.message || "-";
-        elements.exportJobPage.textContent = (job.currentPage || 0) + "/" + (job.totalPages || 0);
-        elements.exportJobItems.textContent = (job.processedItems || 0) + "/" + (job.totalItems || 0);
-        elements.exportJobProgressText.textContent = (job.progressPercent || 0) + "%";
+    function renderJobCard(job, title) {
+        elements.jobCard.style.display = "block";
+        elements.jobTitle.textContent = title;
+        elements.jobId.textContent = job.jobId || "-";
+        elements.jobStatusBadge.textContent = job.status || "-";
+        elements.jobMessage.textContent = job.message || "-";
+        elements.jobPage.textContent = (job.currentPage || 0) + "/" + (job.totalPages || 0);
+        elements.jobItems.textContent = (job.processedItems || 0) + "/" + (job.totalItems || 0);
+        elements.jobProgressText.textContent = (job.progressPercent || 0) + "%";
 
         const progress = clampPercent(job.progressPercent || 0);
-        elements.exportProgressBar.style.width = progress + "%";
-        elements.exportProgressBar.setAttribute("aria-valuenow", String(progress));
-        elements.exportProgressBar.textContent = progress > 12 ? progress + "%" : "";
-        elements.exportProgressBar.classList.toggle("bg-success", job.status === "DONE");
-        elements.exportProgressBar.classList.toggle("bg-danger", job.status === "FAILED");
-        elements.exportProgressBar.classList.toggle("progress-bar-animated", job.status === "PENDING" || job.status === "RUNNING");
+        elements.jobProgressBar.style.width = progress + "%";
+        elements.jobProgressBar.setAttribute("aria-valuenow", String(progress));
+        elements.jobProgressBar.textContent = progress >= 15 ? progress + "%" : "";
+        elements.jobProgressBar.classList.toggle("bg-success", job.status === "DONE");
+        elements.jobProgressBar.classList.toggle("bg-danger", job.status === "FAILED");
+        elements.jobProgressBar.classList.toggle("progress-bar-animated", job.status === "PENDING" || job.status === "RUNNING");
     }
 
-    function resetExportJobUi() {
+    function resetJobUi() {
         clearPolling();
-        state.isExportJobRunning = false;
-        state.exportJob = null;
-        toggleExportAllDownload(false);
-        elements.exportJobCard.style.display = "none";
+        state.isJobRunning = false;
+        state.currentJob = null;
+        toggleJobDownload(false);
+        elements.jobCard.style.display = "none";
         updateActionStates();
     }
 
@@ -804,7 +896,7 @@
         return {
             pageUrl: state.currentFilters.pageUrl,
             page: page,
-            pageSize: state.currentFilters.pageSize,
+            pageSize: FIXED_PAGE_SIZE,
             countryId: state.currentFilters.countryId,
             token: state.currentFilters.token || null
         };
@@ -839,7 +931,7 @@
     }
 
     function resolveErrorMessage(data, status) {
-        const fallback = "Request failed with status " + status + ".";
+        const fallback = "Yêu cầu thất bại với mã trạng thái " + status + ".";
         if (!data) {
             return fallback;
         }
@@ -860,15 +952,15 @@
     }
 
     function updateActionStates() {
-        const disableMainActions = state.isLoading || state.isExportJobRunning;
-
-        elements.crawlButton.disabled = disableMainActions;
+        const disableActions = state.isLoading || state.isJobRunning;
+        elements.crawlButton.disabled = disableActions;
         elements.downloadCurrentButton.disabled = state.isLoading;
-        elements.exportAllButton.disabled = disableMainActions;
-        elements.downloadAllButton.disabled = state.isLoading || !state.exportJob || state.exportJob.status !== "DONE";
+        elements.exportAllButton.disabled = disableActions;
+        elements.exportSelectedButton.disabled = disableActions;
+        elements.downloadJobButton.disabled = state.isLoading || !state.currentJob || state.currentJob.status !== "DONE";
 
         Array.prototype.forEach.call(elements.paginationList.querySelectorAll("button"), function (button) {
-            button.disabled = disableMainActions || button.parentElement.classList.contains("disabled") || button.parentElement.classList.contains("active");
+            button.disabled = disableActions || button.parentElement.classList.contains("disabled") || button.parentElement.classList.contains("active");
         });
     }
 
@@ -876,8 +968,8 @@
         elements.downloadCurrentButton.style.display = visible ? "inline-block" : "none";
     }
 
-    function toggleExportAllDownload(visible) {
-        elements.downloadAllButton.style.display = visible ? "inline-block" : "none";
+    function toggleJobDownload(visible) {
+        elements.downloadJobButton.style.display = visible ? "inline-block" : "none";
     }
 
     function showFeedback(type, message) {
@@ -901,10 +993,73 @@
         elements.resultMeta.style.display = "none";
         elements.tableShell.style.display = "none";
         elements.paginationShell.style.display = "none";
+        elements.selectedPagesSection.style.display = "none";
         elements.resultsTableBody.innerHTML = "";
         elements.paginationList.innerHTML = "";
         elements.emptyState.style.display = "block";
-        elements.emptyState.textContent = "Chưa có dữ liệu. Thực hiện crawl để xem kết quả tại đây.";
+        elements.emptyState.textContent = "Chưa có dữ liệu. Hãy thực hiện crawl để xem kết quả.";
+    }
+
+    function parseSelectedPages(input, totalPages) {
+        if (!input) {
+            throw new Error("Vui lòng nhập danh sách trang cần xuất.");
+        }
+
+        if (!/^[0-9,\-\s]+$/.test(input)) {
+            throw new Error("Danh sách trang chỉ được chứa số, dấu phẩy và dấu gạch ngang.");
+        }
+
+        const pageSet = new Set();
+        const parts = input.split(",");
+
+        parts.forEach(function (rawPart) {
+            const part = rawPart.trim();
+            if (!part) {
+                throw new Error("Định dạng danh sách trang không hợp lệ.");
+            }
+
+            if (part.includes("-")) {
+                const rangeParts = part.split("-");
+                if (rangeParts.length !== 2 || !rangeParts[0].trim() || !rangeParts[1].trim()) {
+                    throw new Error("Khoảng trang không hợp lệ: " + part);
+                }
+
+                const start = parseInteger(rangeParts[0].trim(), "trang bắt đầu");
+                const end = parseInteger(rangeParts[1].trim(), "trang kết thúc");
+                if (start > end) {
+                    throw new Error("Khoảng trang không hợp lệ: " + part);
+                }
+
+                for (let page = start; page <= end; page += 1) {
+                    validatePageInRange(page, totalPages);
+                    pageSet.add(page);
+                }
+                return;
+            }
+
+            const page = parseInteger(part, "trang");
+            validatePageInRange(page, totalPages);
+            pageSet.add(page);
+        });
+
+        const pages = Array.from(pageSet).sort(function (first, second) {
+            return first - second;
+        });
+
+        if (!pages.length) {
+            throw new Error("Không tìm thấy trang hợp lệ để xuất.");
+        }
+
+        return pages;
+    }
+
+    function validatePageInRange(page, totalPages) {
+        if (page < 1) {
+            throw new Error("Số trang phải lớn hơn hoặc bằng 1.");
+        }
+        if (page > totalPages) {
+            throw new Error("Trang " + page + " vượt quá tổng số trang hiện có là " + totalPages + ".");
+        }
     }
 
     function buildCell(value, additionalClass) {
@@ -917,7 +1072,7 @@
     function parseInteger(value, fieldName) {
         const parsedValue = Number.parseInt(value, 10);
         if (!Number.isInteger(parsedValue) || parsedValue < 1) {
-            throw new Error(fieldName + " must be a positive integer.");
+            throw new Error("Giá trị " + fieldName + " không hợp lệ.");
         }
         return parsedValue;
     }
@@ -941,7 +1096,7 @@
         try {
             new URL(url);
         } catch (error) {
-            throw new Error("pageUrl is not a valid URL.");
+            throw new Error("Page URL không hợp lệ.");
         }
     }
 
@@ -965,7 +1120,6 @@
         if (!contentDisposition) {
             return fallback;
         }
-
         const match = contentDisposition.match(/filename="?([^"]+)"?/i);
         return match && match[1] ? match[1] : fallback;
     }
@@ -997,7 +1151,6 @@
         if (value === null || value === undefined) {
             return "";
         }
-
         return String(value)
             .replace(/&/g, "&amp;")
             .replace(/</g, "&lt;")
@@ -1014,12 +1167,9 @@
         if (protocol.startsWith("http") && currentPort === SERVER_PORT) {
             return window.location.origin;
         }
-
         if (hostname === "localhost") {
             return protocol + "//" + hostname + ":" + SERVER_PORT;
         }
-
-        console.log(protocol + "//" + hostname);
         return protocol + "//" + hostname;
     }
 </script>

@@ -88,14 +88,14 @@ public class PlaywrightCrawlerStrategy implements CrawlerStrategy {
                 return CrawlExecutionResult.success(
                         items,
                         items.isEmpty()
-                                ? "Playwright da render thanh cong nhung chua bat duoc item"
-                                : "Lay du lieu tu trang sau khi JS render",
+                                ? "Playwright đã render thành công nhưng chưa lấy được dữ liệu."
+                                : "Đã lấy dữ liệu từ trang sau khi JavaScript render xong.",
                         items.size(),
                         items.isEmpty() ? 0 : 1
                 );
             }
         } catch (Exception exception) {
-            return CrawlExecutionResult.failure("Loi Playwright crawl: " + exception.getMessage());
+            return CrawlExecutionResult.failure("Crawl bằng Playwright thất bại: " + exception.getMessage());
         }
     }
 
@@ -110,7 +110,7 @@ public class PlaywrightCrawlerStrategy implements CrawlerStrategy {
             Files.writeString(outputPath, html);
             log.info("Da dump HTML render tai {}", outputPath.toAbsolutePath());
         } catch (Exception exception) {
-            log.warn("Khong the dump HTML render: {}", exception.getMessage());
+            log.warn("Không thể ghi file HTML đã render: {}", exception.getMessage());
         }
     }
 }

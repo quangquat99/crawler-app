@@ -1,26 +1,32 @@
 package com.quangph.crawlerapp.service.strategy;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.quangph.crawlerapp.config.CrawlerProperties;
 import com.quangph.crawlerapp.dto.request.CrawlRequest;
 import com.quangph.crawlerapp.service.site.JcTransCompanyParser;
-import okhttp3.*;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import java.io.InterruptedIOException;
 import java.io.IOException;
-import java.util.*;
+import java.io.InterruptedIOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
-/**
- * Strategy ưu tiên tìm và gọi API public trước khi fallback sang HTML/Playwright.
- */
 @Component
 @Order(1)
 public class ApiCrawlerStrategy implements CrawlerStrategy {
@@ -44,35 +50,18 @@ public class ApiCrawlerStrategy implements CrawlerStrategy {
         this.jcTransCompanyParser = jcTransCompanyParser;
     }
 
-    /**
-     * Trả về tên strategy.
-     *
-     * @return tên strategy API
-     */
     @Override
     public String getName() {
         return "API";
     }
 
-    /**
-     * Tạm thời cho phép strategy API được thử với mọi URL.
-     *
-     * @param url URL cần crawl
-     * @return true
-     */
     @Override
     public boolean supports(String url) {
         return true;
     }
 
-    /**
-     * Thử tìm API mapping và gọi API để lấy data.
-     *
-     * @return kết quả crawl bằng API
-     */
     @Override
     public CrawlExecutionResult crawl(CrawlRequest crawlRequest) {
-
         String pageUrl = crawlRequest.pageUrl();
         Integer countryId = crawlRequest.countryId();
         Integer pageSize = crawlRequest.pageSize();
@@ -81,7 +70,7 @@ public class ApiCrawlerStrategy implements CrawlerStrategy {
 
         Optional<String> apiUrlOptional = resolveApiUrl(pageUrl);
         if (apiUrlOptional.isEmpty()) {
-            return CrawlExecutionResult.failure("Khong tim thay API mapping public phu hop");
+            return CrawlExecutionResult.failure("Không tìm thấy API public phù hợp để crawl dữ liệu.");
         }
 
         String apiUrl = apiUrlOptional.get();
@@ -89,12 +78,12 @@ public class ApiCrawlerStrategy implements CrawlerStrategy {
 
         try (Response response = okHttpClient.newCall(request).execute()) {
             if (!response.isSuccessful()) {
-                return CrawlExecutionResult.failure("API tra ve status " + response.code());
+                return CrawlExecutionResult.failure("API trả về mã trạng thái " + response.code() + ".");
             }
 
             ResponseBody responseBody = response.body();
             if (responseBody == null) {
-                return CrawlExecutionResult.failure("API khong co response body");
+                return CrawlExecutionResult.failure("API không trả về nội dung dữ liệu.");
             }
 
             String rawBody = responseBody.string();
@@ -102,10 +91,9 @@ public class ApiCrawlerStrategy implements CrawlerStrategy {
                 log.debug("API body preview: {}", limit(rawBody));
             }
 
-            // Định nghĩa chuẩn: nếu là JSON thì parse bằng Jackson.
             if (looksLikeJson(rawBody)) {
                 JsonNode root = objectMapper.readTree(rawBody);
-                if (jcTransCompanyParser.supports(pageUrl) || looksLikeJcTransCompanyApi(rawBody)) {
+                if (jcTransCompanyParser.supports(pageUrl) || looksLikeJcTransCompanyApi(root)) {
                     List<JsonNode> listItems = jcTransCompanyParser.extractApiRecords(root);
                     List<JsonNode> enrichedItems = enrichCompanyDetails(listItems, token);
                     long totalItems = resolveTotalItems(root, enrichedItems.size());
@@ -114,45 +102,28 @@ public class ApiCrawlerStrategy implements CrawlerStrategy {
                     return CrawlExecutionResult.success(
                             enrichedItems,
                             enrichedItems.isEmpty()
-                                    ? "Crawl thành công nhưng không có dữ liệu ở trang hiện tại"
-                                    : "Lấy data từ list/detail company JSON API response",
+                                    ? "Crawl thành công nhưng không có dữ liệu ở trang hiện tại."
+                                    : "Đã lấy dữ liệu từ API danh sách và chi tiết công ty.",
                             totalItems,
                             totalPages
                     );
                 }
 
-                return CrawlExecutionResult.failure("API tra JSON nhung khong parse duoc thanh data");
+                return CrawlExecutionResult.failure("API trả về JSON nhưng không parse được thành dữ liệu.");
             }
 
-//            if (jcTransCompanyParser.supports(pageUrl)) {
-//                List<JsonNode> items = jcTransCompanyParser.parse(rawBody, pageUrl)
-//                        .stream()
-//                        .<JsonNode>map(item -> objectMapper.valueToTree(item))
-//                        .toList();
-//                if (!items.isEmpty()) {
-//                    return new CrawlExecutionResult(items, "Lay du lieu raw tu API/HTML response");
-//                }
-//            }
-
-            return CrawlExecutionResult.failure("API response khong parse duoc thanh data");
+            return CrawlExecutionResult.failure("Phản hồi từ API không parse được thành dữ liệu.");
         } catch (InterruptedIOException exception) {
             log.warn("Crawl timeout via strategy={} url={} page={} pageSize={}",
                     getName(), pageUrl, page, pageSize, exception);
-            return CrawlExecutionResult.failure("Crawl timeout, vui long thu lai voi pageSize nho hon");
+            return CrawlExecutionResult.failure("Crawl bị timeout, vui lòng thử lại sau.");
         } catch (IOException exception) {
             log.warn("Crawl IO error via strategy={} url={} page={} pageSize={}",
                     getName(), pageUrl, page, pageSize, exception);
-            return CrawlExecutionResult.failure("Crawl that bai do loi ket noi, vui long thu lai");
+            return CrawlExecutionResult.failure("Crawl thất bại do lỗi kết nối, vui lòng thử lại.");
         }
     }
 
-    /**
-     * Resolve API URL từ URL đầu vào.
-     * Hiện tại để hardcode cho việc mở rộng sau này, JcTrans chưa map sẵn API công khai ổn định.
-     *
-     * @param url URL gốc
-     * @return API URL nếu tìm thấy
-     */
     private Optional<String> resolveApiUrl(String url) {
         if (url == null || url.isBlank()) {
             return Optional.empty();
@@ -170,32 +141,12 @@ public class ApiCrawlerStrategy implements CrawlerStrategy {
         return Optional.empty();
     }
 
-    /**
-     * Đoán URL có dạng API endpoint hay không.
-     *
-     * @param url URL đầu vào
-     * @return true nếu URL có dấu hiệu là API
-     */
     private boolean looksLikeApiUrl(String url) {
         String normalized = url.toLowerCase();
         return normalized.contains("/api")
                 || normalized.contains("cloudapi.")
                 || normalized.contains("sapi.")
                 || normalized.contains("base-api");
-    }
-
-    /**
-     * Phát hiện body có schema giống JcTrans company search API hay không.
-     *
-     * @param rawBody raw JSON response
-     * @return true nếu body có data.records và compName
-     */
-    private boolean looksLikeJcTransCompanyApi(String rawBody) {
-        try {
-            return looksLikeJcTransCompanyApi(objectMapper.readTree(rawBody));
-        } catch (Exception exception) {
-            return false;
-        }
     }
 
     private boolean looksLikeJcTransCompanyApi(JsonNode root) {
@@ -205,23 +156,11 @@ public class ApiCrawlerStrategy implements CrawlerStrategy {
                 .hasNonNull("compName");
     }
 
-    /**
-     * Kiểm tra body có dạng JSON hay không.
-     *
-     * @param rawBody body thuần dạng string
-     * @return true nếu body có dạng JSON object/array
-     */
     private boolean looksLikeJson(String rawBody) {
         String trimmed = rawBody == null ? "" : rawBody.trim();
         return trimmed.startsWith("{") || trimmed.startsWith("[");
     }
 
-    /**
-     * Cắt ngắn body để log preview, tránh log quá dài.
-     *
-     * @param rawBody body thuần dạng string
-     * @return body đã được cắt ngắn nếu cần
-     */
     private String limit(String rawBody) {
         if (rawBody == null) {
             return "";
@@ -271,10 +210,8 @@ public class ApiCrawlerStrategy implements CrawlerStrategy {
     }
 
     private Request buildJcTransRequest(String apiUrl, int current, int size, int countryId, String token) {
-
         try {
             Map<String, Object> payload = new HashMap<>();
-
             payload.put("current", current);
             payload.put("size", size);
             payload.put("countryId", countryId);
@@ -283,7 +220,6 @@ public class ApiCrawlerStrategy implements CrawlerStrategy {
             }
 
             String jsonBody = objectMapper.writeValueAsString(payload);
-
             RequestBody body = RequestBody.create(
                     jsonBody,
                     MediaType.parse("application/json; charset=utf-8")
@@ -298,7 +234,6 @@ public class ApiCrawlerStrategy implements CrawlerStrategy {
                     .header("Referer", "https://www.jctrans.com/en/company/")
                     .post(body);
 
-            // add Authorization nếu có token
             if (token != null && !token.isBlank()) {
                 builder.header("Authorization", "Bearer " + token);
             }
@@ -313,23 +248,17 @@ public class ApiCrawlerStrategy implements CrawlerStrategy {
 
         for (JsonNode listItem : listItems) {
             String compUid = listItem.path("compUid").asText(null);
-
             if (compUid == null || compUid.isBlank()) {
                 result.add(listItem);
                 continue;
             }
 
             JsonNode detail = callCompanyDetailApi(compUid, token);
-
             ObjectNode merged = objectMapper.createObjectNode();
             merged.set("list", listItem);
-
-            if (detail != null && !detail.isMissingNode() && !detail.isNull()) {
-                merged.set("detail", detail);
-            } else {
-                merged.set("detail", objectMapper.createObjectNode());
-            }
-
+            merged.set("detail", detail != null && !detail.isMissingNode() && !detail.isNull()
+                    ? detail
+                    : objectMapper.createObjectNode());
             result.add(merged);
         }
 
@@ -368,12 +297,10 @@ public class ApiCrawlerStrategy implements CrawlerStrategy {
 
                 String rawBody = response.body().string();
                 JsonNode root = objectMapper.readTree(rawBody);
-
                 return root.path("data");
             }
-
-        } catch (Exception e) {
-            log.warn("Khong lay duoc detail companyId={}", companyId, e);
+        } catch (Exception exception) {
+            log.warn("Không lấy được chi tiết companyId={}", companyId, exception);
             return null;
         }
     }
