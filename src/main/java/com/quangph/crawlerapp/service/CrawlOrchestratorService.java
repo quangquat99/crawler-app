@@ -157,15 +157,13 @@ public class CrawlOrchestratorService {
                 firstNonBlank(detail.path("status").asText(""), list.path("status").asText("")),
                 firstNonBlank(detail.path("countryNameEn").asText(""), list.path("countryName").asText("")),
                 firstNonBlank(detail.path("registeredAddressEn").asText(""), detail.path("registeredAddressCn").asText("")),
-                mainUser.path("email").asText(""),
-                mainUser.path("wechat").asText(""),
-                mainUser.path("whatsapp").asText(""),
-                mainUser.path("skype").asText(""),
-                mainUser.path("mobile").asText(""),
-                detail.path("companySize").asText(""),
+                mainUser != null ? mainUser.path("email").asText("") : "",
+                mainUser != null ? mainUser.path("wechat").asText("") : "",
+                mainUser != null ? mainUser.path("whatsapp").asText("") : "",
+                mainUser != null ? mainUser.path("skype").asText("") : "",
+                mainUser != null ? mainUser.path("mobile").asText("") : "",
+                normalizeCompanySize(firstNonBlank(detail.path("scaleCn").asText(""), detail.path("scaleEn").asText(""))),
                 detail.path("note").asText("")
-
-
         );
     }
 
@@ -192,6 +190,22 @@ public class CrawlOrchestratorService {
             return first;
         }
         return second == null ? "" : second;
+    }
+
+    private String normalizeCompanySize(String companySize) {
+        if (companySize == null || companySize.isBlank()) {
+            return "";
+        }
+
+        return switch (companySize.trim().toLowerCase()) {
+            case "mini" -> "<=10";
+            case "small" -> "11-50";
+            case "medium" -> "51-100";
+            case "large" -> "101-500";
+            case "larger" -> "501-1000";
+            case "big" -> ">1000";
+            default -> companySize.trim();
+        };
     }
 
 
