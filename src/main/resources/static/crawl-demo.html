@@ -86,14 +86,6 @@
             gap: 12px;
         }
 
-        .status-inline {
-            display: none;
-            align-items: center;
-            gap: 10px;
-            color: #64748b;
-            font-size: 0.95rem;
-        }
-
         .result-meta {
             display: none;
             grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
@@ -222,6 +214,26 @@
             color: #475569;
             font-size: 0.95rem;
         }
+
+        .loading-modal-body {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+        }
+
+        .loading-modal-spinner {
+            flex: 0 0 auto;
+        }
+
+        .loading-modal-text {
+            min-width: 0;
+        }
+
+        .loading-modal-description {
+            margin: 4px 0 0;
+            color: #64748b;
+            line-height: 1.6;
+        }
     </style>
 </head>
 <body>
@@ -274,10 +286,6 @@
                 <button id="downloadCurrentButton" type="button" class="btn btn-outline-success" style="display: none;">Tải trang hiện tại</button>
                 <button id="exportAllButton" type="button" class="btn btn-outline-primary">Xuất tất cả các trang</button>
                 <button id="downloadJobButton" type="button" class="btn btn-success" style="display: none;">Tải file Excel</button>
-                <div id="loadingState" class="status-inline">
-                    <div class="spinner-border spinner-border-sm text-primary" role="status" aria-hidden="true"></div>
-                    <span>Đang xử lý yêu cầu...</span>
-                </div>
             </div>
 
             <div id="feedbackBox" class="alert mt-3 d-none" role="alert"></div>
@@ -407,6 +415,38 @@
     </section>
 </div>
 
+<div
+        class="modal fade"
+        id="loadingModal"
+        tabindex="-1"
+        aria-labelledby="loadingModalTitle"
+        aria-hidden="true"
+        data-bs-backdrop="static"
+        data-bs-keyboard="false"
+>
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-body p-4">
+                <div class="loading-modal-body">
+                    <div class="loading-modal-spinner">
+                        <div class="spinner-border text-primary" role="status" aria-hidden="true"></div>
+                    </div>
+                    <div class="loading-modal-text">
+                        <h5 id="loadingModalTitle" class="mb-1">Đang xử lý</h5>
+                        <p id="loadingModalDescription" class="loading-modal-description">Đang xử lý yêu cầu...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"
+></script>
+
 <script>
     const SERVER_PORT = "2412";
     const FIXED_PAGE_SIZE = 20;
@@ -443,11 +483,13 @@
         downloadCurrentButton: document.getElementById("downloadCurrentButton"),
         exportAllButton: document.getElementById("exportAllButton"),
         downloadJobButton: document.getElementById("downloadJobButton"),
-        loadingState: document.getElementById("loadingState"),
         feedbackBox: document.getElementById("feedbackBox"),
         selectedPagesSection: document.getElementById("selectedPagesSection"),
         selectedPagesInput: document.getElementById("selectedPagesInput"),
         exportSelectedButton: document.getElementById("exportSelectedButton"),
+        loadingModal: document.getElementById("loadingModal"),
+        loadingModalTitle: document.getElementById("loadingModalTitle"),
+        loadingModalDescription: document.getElementById("loadingModalDescription"),
         jobCard: document.getElementById("jobCard"),
         jobTitle: document.getElementById("jobTitle"),
         jobMessage: document.getElementById("jobMessage"),
@@ -474,9 +516,16 @@
         paginationList: document.getElementById("paginationList")
     };
 
+    let loadingModalInstance = null;
+
     document.addEventListener("DOMContentLoaded", initializePage);
 
     function initializePage() {
+        loadingModalInstance = new bootstrap.Modal(elements.loadingModal, {
+            backdrop: "static",
+            keyboard: false
+        });
+
         elements.crawlButton.addEventListener("click", function () {
             startCrawl(true);
         });
@@ -518,7 +567,11 @@
 
         try {
             clearFeedback();
-            setLoadingState(true, state.pendingPage ? "Đang tải dữ liệu trang " + state.pendingPage + "..." : "Đang crawl dữ liệu...");
+            setLoadingState(
+                true,
+                state.pendingPage ? "Đang tải dữ liệu trang " + state.pendingPage + "..." : "Đang crawl dữ liệu...",
+                state.pendingPage ? "Đang tải dữ liệu" : "Đang crawl dữ liệu"
+            );
 
             const response = await postJson(API_ENDPOINTS.crawl, buildCrawlPayload(state.currentFilters.page));
             state.lastCrawlResponse = response;
@@ -549,7 +602,7 @@
 
         try {
             clearFeedback();
-            setLoadingState(true, "Đang tạo file Excel cho trang hiện tại...");
+            setLoadingState(true, "Đang tạo file Excel cho trang hiện tại...", "Đang tạo file Excel");
 
             const response = await fetch(API_ENDPOINTS.exportCurrent, {
                 method: "POST",
@@ -581,7 +634,6 @@
         try {
             clearFeedback();
             syncFiltersFromForm(false);
-            setLoadingState(true, "Đang tạo tác vụ xuất tất cả các trang...");
             resetJobUi();
 
             const response = await postJson(API_ENDPOINTS.exportAll, buildCrawlPayload(1));
@@ -589,8 +641,6 @@
             showFeedback("success", response.message || "Đã tạo tác vụ xuất tất cả các trang.");
         } catch (error) {
             showFeedback("danger", error.message || "Không thể tạo tác vụ xuất tất cả các trang.");
-        } finally {
-            setLoadingState(false);
         }
     }
 
@@ -608,7 +658,6 @@
             }
 
             const pages = parseSelectedPages(elements.selectedPagesInput.value.trim(), Number(state.lastCrawlResponse.totalPages));
-            setLoadingState(true, "Đang tạo tác vụ xuất các trang đã chọn...");
             resetJobUi();
 
             const response = await postJson(API_ENDPOINTS.exportSelected, {
@@ -623,8 +672,6 @@
             showFeedback("success", response.message || "Đã tạo tác vụ xuất các trang đã chọn.");
         } catch (error) {
             showFeedback("danger", error.message || "Không thể tạo tác vụ xuất các trang đã chọn.");
-        } finally {
-            setLoadingState(false);
         }
     }
 
@@ -782,7 +829,7 @@
 
         elements.paginationShell.style.display = "block";
         elements.paginationSummary.textContent =
-            "Trang " + currentPage + " | Kích thước trang 20 | Tổng số bản ghi " + totalItems + " | Tổng số trang " + totalPages;
+            "Page : " + currentPage + " | Page size : 20 | Tổng số bản ghi : " + totalItems + " | Tổng số trang : " + totalPages;
 
         appendPageItem("Trước", currentPage - 1, currentPage <= 1, false);
 
@@ -944,11 +991,24 @@
         return fallback;
     }
 
-    function setLoadingState(isLoading, loadingText) {
+    function setLoadingState(isLoading, loadingText, loadingTitle) {
         state.isLoading = isLoading;
-        elements.loadingState.style.display = isLoading ? "inline-flex" : "none";
-        elements.loadingState.querySelector("span").textContent = loadingText || "Đang xử lý yêu cầu...";
+        if (isLoading) {
+            showLoadingModal(loadingTitle || "Đang xử lý yêu cầu", loadingText || "Đang xử lý yêu cầu...");
+        } else {
+            hideLoadingModal();
+        }
         updateActionStates();
+    }
+
+    function showLoadingModal(title, description) {
+        elements.loadingModalTitle.textContent = title || "Đang xử lý";
+        elements.loadingModalDescription.textContent = description || "Đang xử lý yêu cầu...";
+        loadingModalInstance.show();
+    }
+
+    function hideLoadingModal() {
+        loadingModalInstance.hide();
     }
 
     function updateActionStates() {
